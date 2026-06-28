@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Data & Backup — FocuslyNow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0f14;--card:#1a1e28;--surface:#111318;--accent:#c8f064;--accent2:#64d4f0;--accent3:#f0a064;--accent4:#a78bfa;--text:#e8eaf2;--muted:#7a7f96;--border:#2a2e3d}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(13,15,20,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:9999;gap:.6rem;overflow:visible}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:.7rem;list-style:none;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.nav-links>li>a{color:var(--muted);text-decoration:none;font-size:.83rem;font-weight:500;transition:color .18s}
+.nav-links>li>a:hover{color:var(--text)}
+.nav-sep{width:1px;height:14px;background:var(--border);margin:0 .1rem;display:inline-block;vertical-align:middle}
+.jbtn{border-radius:7px;padding:.3rem .72rem;font-size:.71rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .18s;white-space:nowrap;display:inline-flex;align-items:center;gap:.25rem}
+.jbtn.g{background:rgba(200,240,100,.08);border:1px solid rgba(200,240,100,.22);color:#c8f064}.jbtn.g:hover{background:rgba(200,240,100,.18)}
+.jbtn.b{background:rgba(100,212,240,.08);border:1px solid rgba(100,212,240,.22);color:#64d4f0}.jbtn.b:hover{background:rgba(100,212,240,.18)}
+.jbtn.o{background:rgba(240,160,100,.08);border:1px solid rgba(240,160,100,.22);color:#f0a064}.jbtn.o:hover{background:rgba(240,160,100,.18)}
+.jbtn.p{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.22);color:#a78bfa}.jbtn.p:hover{background:rgba(167,139,250,.18)}
+.hero{padding:4rem 2rem 2rem;text-align:center;position:relative}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 30%,rgba(167,139,250,.06) 0%,transparent 70%);pointer-events:none}
+.hero-tag{display:inline-block;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.3);color:var(--accent4);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;padding:.38rem 1.1rem;border-radius:100px;margin-bottom:1.1rem}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.6rem);font-weight:900;letter-spacing:-2px}
+.hero h1 span{color:var(--accent4)}
+.hero p{color:var(--muted);font-size:.95rem;margin-top:.6rem}
+.content{max-width:900px;margin:0 auto;padding:1.5rem 2rem 5rem;display:flex;flex-direction:column;gap:1.4rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.8rem 2rem;position:relative;overflow:hidden}
+.card-hdr{display:flex;align-items:flex-start;gap:1rem;margin-bottom:1.2rem}
+.card-icon-wrap{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.card-info{flex:1}
+.card-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:.2rem}
+.card-desc{color:var(--muted);font-size:.83rem;line-height:1.5}
+.stat-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.1rem}
+.stat-chip{display:flex;align-items:center;gap:.35rem;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.35rem .75rem;font-size:.8rem}
+.sc-icon{font-size:.9rem}
+.sc-count{font-weight:700;color:var(--text)}
+.sc-label{color:var(--muted)}
+.action-btn{display:inline-flex;align-items:center;gap:.45rem;padding:.65rem 1.3rem;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:all .2s;border:none}
+.btn-export{background:var(--accent);color:#0d0f14}.btn-export:hover{opacity:.85}
+.btn-import{background:rgba(100,212,240,.12);border:1px solid rgba(100,212,240,.3);color:var(--accent2)}.btn-import:hover{background:rgba(100,212,240,.22)}
+.btn-clear{background:rgba(240,100,100,.1);border:1px solid rgba(240,100,100,.25);color:#f06464}.btn-clear:hover{background:rgba(240,100,100,.2)}
+.btn-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+.import-zone{border:2px dashed var(--border);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .2s;margin-top:.9rem}
+.import-zone:hover,.import-zone.drag-over{border-color:var(--accent2);background:rgba(100,212,240,.04)}
+.import-zone .iz-icon{font-size:2rem;margin-bottom:.5rem}
+.import-zone p{font-size:.84rem;color:var(--muted);line-height:1.5}
+.import-zone span{color:var(--accent2);font-weight:600}
+.import-preview{display:none;margin-top:1rem;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1rem 1.2rem}
+.import-preview h4{font-size:.88rem;font-weight:700;margin-bottom:.6rem}
+.preview-items{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.9rem}
+.preview-item{background:rgba(200,240,100,.08);border:1px solid rgba(200,240,100,.2);color:var(--accent);border-radius:7px;padding:.22rem .6rem;font-size:.75rem}
+.import-btns{display:flex;gap:.6rem}
+.toast-msg{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:var(--card);border:1px solid var(--accent);border-left:4px solid var(--accent);border-radius:12px;padding:.75rem 1.4rem;font-size:.88rem;font-weight:600;color:var(--accent);z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast-msg.show{opacity:1}
+.danger-zone{border-color:rgba(240,100,100,.3)}
+.danger-zone::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:#f06464;filter:blur(70px);opacity:.04}
+footer{padding:2rem 2.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-logo{font-family:'Playfair Display',serif;font-weight:900;color:var(--accent);font-size:1.1rem}
+footer p{color:var(--muted);font-size:.78rem}
+/* CONFIRM MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(5px);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.show{display:flex}
+.fn-modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem 2.2rem;max-width:380px;width:100%;text-align:center;animation:mIn .25s cubic-bezier(.34,1.56,.64,1)}
+@keyframes mIn{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
+.fm-btns{display:flex;gap:.7rem;justify-content:center;margin-top:1.3rem;flex-wrap:wrap}
+.fm-btn-ghost{padding:.6rem 1.2rem;background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer}
+.fm-btn-danger{padding:.6rem 1.4rem;background:#f06464;border:none;color:#fff;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">FocuslyNow</a>
+  <ul class="nav-links">
+    <li><a href="habit-tracker.html" class="jbtn g">🌿 Habits</a></li>
+    <li><a href="schedule-maker.html" class="jbtn b">📅 Schedule</a></li>
+    <li><a href="notes.html" class="jbtn o">📝 Notes</a></li>
+    <li><a href="focus-timer.html" class="jbtn o">⏱ Timer</a></li>
+    <li><a href="todo.html" class="jbtn p">🎯 To-Do</a></li>
+    <li><a href="sleep-tracker.html" class="jbtn b">🌙 Sleep</a></li>
+    <li><a href="water-tracker.html" class="jbtn b">💧 Water</a></li>
+    <li><a href="goal-tracker.html" class="jbtn g">🏆 Goals</a></li>
+    <li class="nav-more-wrap">
+      <button class="jbtn more-btn" onclick="FN_toggleMore()">⋯ More</button>
+      <div class="nav-more-dropdown" id="moreNavDrop">
+        <a href="reminders.html">🔔 Reminders</a>
+        <a href="weekly-review.html">📊 Report</a>
+        <a href="data.html">💾 Data Backup</a>
+      </div>
+    </li>
+    <li><button class="fn-theme-btn" onclick="FN_toggleTheme()">☀</button></li>
+  </ul>
+</nav>
+<div class="hero">
+  <div class="hero-tag">💾 Backup</div>
+  <h1>Your <span>Data</span></h1>
+  <p>Export everything to JSON, import on another device, or clear your data.</p>
+</div>
+<div class="content">
+  <!-- STATS -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-icon-wrap" style="background:rgba(167,139,250,.12)">📊</div>
+      <div class="card-info">
+        <div class="card-title">What's Stored</div>
+        <div class="card-desc">All data lives in your browser's localStorage — nothing is sent to any server.</div>
+      </div>
+    </div>
+    <div class="stat-chips" id="statsChips"></div>
+  </div>
+
+  <!-- EXPORT -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-icon-wrap" style="background:rgba(200,240,100,.1)">⬇️</div>
+      <div class="card-info">
+        <div class="card-title">Export Data</div>
+        <div class="card-desc">Download all your FocuslyNow data as a single JSON file. Use it as a backup or to move to another device.</div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="action-btn btn-export" onclick="exportData()">⬇ Download JSON Backup</button>
+      <span style="font-size:.78rem;color:var(--muted)" id="exportInfo"></span>
+    </div>
+  </div>
+
+  <!-- IMPORT -->
+  <div class="card">
+    <div class="card-hdr">
+      <div class="card-icon-wrap" style="background:rgba(100,212,240,.1)">⬆️</div>
+      <div class="card-info">
+        <div class="card-title">Import Data</div>
+        <div class="card-desc">Restore from a previous export. Existing data will be merged — new data won't overwrite unless you choose to replace.</div>
+      </div>
+    </div>
+    <div class="import-zone" id="importZone" onclick="document.getElementById('fileInput').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave()" ondrop="onDrop(event)">
+      <div class="iz-icon">📂</div>
+      <p>Drag &amp; drop your backup file here<br>or <span>click to browse</span></p>
+    </div>
+    <input type="file" id="fileInput" accept=".json" style="display:none" onchange="onFileSelect(event)"/>
+    <div class="import-preview" id="importPreview">
+      <h4>Preview — data found in file:</h4>
+      <div class="preview-items" id="previewItems"></div>
+      <div class="import-btns">
+        <button class="action-btn btn-import" onclick="applyImport('merge')">⬆ Merge (keep existing)</button>
+        <button class="action-btn btn-clear" onclick="applyImport('replace')">↺ Replace all</button>
+        <button class="action-btn" style="background:var(--surface);border:1px solid var(--border);color:var(--muted)" onclick="cancelImport()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLEAR DATA -->
+  <div class="card danger-zone">
+    <div class="card-hdr">
+      <div class="card-icon-wrap" style="background:rgba(240,100,100,.1)">🗑️</div>
+      <div class="card-info">
+        <div class="card-title">Clear Data</div>
+        <div class="card-desc">Permanently delete selected data categories. This cannot be undone — export a backup first.</div>
+      </div>
+    </div>
+    <div class="btn-row" id="clearBtns"></div>
+  </div>
+</div>
+
+<footer><div class="footer-logo">FocuslyNow</div><p>&copy; 2026 FocuslyNow. All rights reserved.</p></footer>
+
+<!-- CLEAR CONFIRM MODAL -->
+<div class="modal-overlay" id="clearModal">
+  <div class="fn-modal">
+    <div style="font-size:2.2rem;margin-bottom:.7rem">⚠️</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:900;margin-bottom:.55rem">Clear Data?</div>
+    <div style="color:var(--muted);font-size:.88rem;line-height:1.6;margin-bottom:.3rem">You are about to permanently delete:</div>
+    <div style="color:var(--text);font-size:.9rem;font-weight:700;margin-bottom:.3rem" id="clearTargetName"></div>
+    <div style="color:var(--muted);font-size:.82rem;margin-bottom:1.2rem">This cannot be undone. Export a backup first.</div>
+    <div class="fm-btns">
+      <button class="fm-btn-ghost" onclick="closeClearModal()">Cancel</button>
+      <button class="fm-btn-danger" onclick="confirmClear()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-msg" id="toastMsg"></div>
+
+<script src="theme.js"></script>
+<script src="reminders.js"></script>
+<script>
+var EXPORT_KEYS = [
+  {key:'fn_todos_v4',       label:'Tasks',       icon:'🎯'},
+  {key:'fn_schedule_v2',    label:'Schedule',    icon:'📅'},
+  {key:'fn_sched_tpl_v2',   label:'Templates',   icon:'📋'},
+  {key:'fn_sleep_v1',       label:'Sleep',       icon:'🌙'},
+  {key:'fn_water_v1',       label:'Water',       icon:'💧'},
+  {key:'fn_water_goal',     label:'Water Goal',  icon:'💧'},
+  {key:'fl_sessions',       label:'Focus',       icon:'⏱'},
+  {key:'fl_qnotes_v1',      label:'Quick Notes', icon:'📝'},
+  {key:'fn_reminders_v1',   label:'Reminders',   icon:'🔔'},
+  {key:'fl_notes_v1',       label:'Notes',       icon:'📝'},
+  {key:'fn_goals_v1',       label:'Goals',       icon:'🏆'},
+  {key:'fn_theme',          label:'Theme',       icon:'🎨'},
+  {key:'fn_wrapup_v1',      label:'Wrap-Up',     icon:'🌙'}
+];
+
+function getHabitKeys(){
+  var keys=[];
+  for(var k in localStorage){ if(k.indexOf('mf_habitData2_')===0) keys.push(k); }
+  return keys;
+}
+
+function countEntries(key){
+  try{
+    var v=localStorage.getItem(key);
+    if(!v) return 0;
+    var p=JSON.parse(v);
+    if(Array.isArray(p)) return p.length;
+    if(typeof p==='object') return Object.keys(p).length;
+    return 1;
+  }catch(e){ return 1; }
+}
+
+function renderStats(){
+  var chips=document.getElementById('statsChips');
+  var exportInfo='';
+  var totalBytes=0;
+  var items=[];
+  EXPORT_KEYS.forEach(function(k){
+    var v=localStorage.getItem(k.key);
+    if(!v) return;
+    var cnt=countEntries(k.key);
+    totalBytes+=v.length;
+    if(cnt>0) items.push('<div class="stat-chip"><span class="sc-icon">'+k.icon+'</span><span class="sc-count">'+cnt+'</span><span class="sc-label">'+k.label+'</span></div>');
+  });
+  var hKeys=getHabitKeys();
+  if(hKeys.length){
+    var totalHabits=0;
+    hKeys.forEach(function(k){ var v=localStorage.getItem(k);try{totalHabits+=JSON.parse(v||'[]').length;}catch(e){} });
+    items.push('<div class="stat-chip"><span class="sc-icon">🌿</span><span class="sc-count">'+hKeys.length+' mo</span><span class="sc-label">Habits</span></div>');
+    totalBytes+=hKeys.reduce(function(a,k){return a+(localStorage.getItem(k)||'').length;},0);
+  }
+  chips.innerHTML=items.join('')||'<span style="color:var(--muted);font-size:.85rem">No data stored yet.</span>';
+  document.getElementById('exportInfo').textContent=items.length?'~'+Math.round(totalBytes/1024)+'KB across '+items.length+' categories':'';
+  renderClearBtns();
+}
+
+function renderClearBtns(){
+  var categories=[
+    {label:'All Tasks',keys:['fn_todos_v4'],icon:'🎯'},
+    {label:'Schedule',keys:['fn_schedule_v2','fn_sched_tpl_v2'],icon:'📅'},
+    {label:'Sleep Logs',keys:['fn_sleep_v1'],icon:'🌙'},
+    {label:'Water Logs',keys:['fn_water_v1','fn_water_goal'],icon:'💧'},
+    {label:'Focus Sessions',keys:['fl_sessions'],icon:'⏱'},
+    {label:'Notes',keys:['fl_notes_v1','fl_qnotes_v1'],icon:'📝'},
+    {label:'Goals',keys:['fn_goals_v1'],icon:'🏆'},
+    {label:'Habit Data',keys:'__habits__',icon:'🌿'},
+    {label:'Everything',keys:'__all__',icon:'⚠️'}
+  ];
+  var cb=document.getElementById('clearBtns');
+  cb.innerHTML='';
+  categories.forEach(function(cat){
+    var btn=document.createElement('button');
+    btn.className='action-btn btn-clear';
+    btn.style.cssText='font-size:.78rem;padding:.45rem .9rem';
+    btn.textContent=cat.icon+' '+cat.label;
+    btn.addEventListener('click',function(){ openClearModal(cat.label,cat.keys); });
+    cb.appendChild(btn);
+  });
+}
+
+/* ── EXPORT ── */
+function exportData(){
+  var bundle={version:2,exported:new Date().toISOString(),data:{}};
+  EXPORT_KEYS.forEach(function(k){
+    var v=localStorage.getItem(k.key);
+    if(v) try{ bundle.data[k.key]=JSON.parse(v); }catch(e){ bundle.data[k.key]=v; }
+  });
+  getHabitKeys().forEach(function(k){
+    var v=localStorage.getItem(k);
+    if(v) try{ bundle.data[k]=JSON.parse(v); }catch(e){ bundle.data[k]=v; }
+  });
+  var blob=new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download='focuslynow-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('✅ Backup downloaded!');
+}
+
+/* ── IMPORT ── */
+var pendingImport=null;
+
+function onDragOver(e){ e.preventDefault(); document.getElementById('importZone').classList.add('drag-over'); }
+function onDragLeave(){ document.getElementById('importZone').classList.remove('drag-over'); }
+function onDrop(e){ e.preventDefault(); onDragLeave(); var f=e.dataTransfer.files[0]; if(f) readFile(f); }
+function onFileSelect(e){ var f=e.target.files[0]; if(f) readFile(f); e.target.value=''; }
+
+function readFile(file){
+  if(!file.name.endsWith('.json')){ showToast('⚠️ Please select a .json file'); return; }
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var d=JSON.parse(e.target.result);
+      if(!d.data){ showToast('⚠️ Invalid backup file'); return; }
+      pendingImport=d;
+      var keys=Object.keys(d.data);
+      document.getElementById('previewItems').innerHTML=keys.map(function(k){
+        return '<div class="preview-item">'+k+'</div>';
+      }).join('');
+      document.getElementById('importPreview').style.display='block';
+    }catch(err){ showToast('⚠️ Could not read file: '+err.message); }
+  };
+  reader.readAsText(file);
+}
+
+function applyImport(mode){
+  if(!pendingImport) return;
+  var keys=Object.keys(pendingImport.data);
+  var count=0;
+  keys.forEach(function(k){
+    if(mode==='replace'||!localStorage.getItem(k)){
+      localStorage.setItem(k,JSON.stringify(pendingImport.data[k]));
+      count++;
+    }
+  });
+  pendingImport=null;
+  document.getElementById('importPreview').style.display='none';
+  renderStats();
+  showToast('✅ Imported '+count+' items!');
+}
+
+function cancelImport(){
+  pendingImport=null;
+  document.getElementById('importPreview').style.display='none';
+}
+
+/* ── CLEAR ── */
+var clearTarget=null;
+
+function openClearModal(label,keys){
+  clearTarget={label:label,keys:keys};
+  document.getElementById('clearTargetName').textContent=label;
+  document.getElementById('clearModal').classList.add('show');
+}
+function closeClearModal(){ document.getElementById('clearModal').classList.remove('show'); clearTarget=null; }
+
+function confirmClear(){
+  if(!clearTarget) return;
+  var keys=clearTarget.keys;
+  if(keys==='__habits__'){
+    getHabitKeys().forEach(function(k){ localStorage.removeItem(k); });
+  } else if(keys==='__all__'){
+    EXPORT_KEYS.forEach(function(k){ localStorage.removeItem(k.key); });
+    getHabitKeys().forEach(function(k){ localStorage.removeItem(k); });
+    localStorage.removeItem('fn_goals_v1');
+  } else {
+    keys.forEach(function(k){ localStorage.removeItem(k); });
+  }
+  closeClearModal(); renderStats();
+  showToast('🗑️ '+clearTarget.label+' cleared');
+}
+
+/* ── TOAST ── */
+var _toastTimer=null;
+function showToast(msg){
+  var el=document.getElementById('toastMsg');
+  el.textContent=msg; el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(function(){ el.classList.remove('show'); },3000);
+}
+
+document.getElementById('clearModal').addEventListener('click',function(e){if(e.target===this)closeClearModal();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeClearModal();});
+
+renderStats();
+</script>
+</body>
+</html>

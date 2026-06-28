@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sleep Tracker — FocuslyNow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0f14;--card:#1a1e28;--surface:#111318;--accent:#64d4f0;--accent2:#c8f064;--accent3:#f0a064;--accent4:#a78bfa;--text:#e8eaf2;--muted:#7a7f96;--border:#2a2e3d}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(13,15,20,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:9999;gap:.6rem;overflow:visible}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:.7rem;list-style:none;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.nav-links>li>a{color:var(--muted);text-decoration:none;font-size:.83rem;font-weight:500;transition:color .18s}
+.nav-links>li>a:hover{color:var(--text)}
+.nav-sep{width:1px;height:14px;background:var(--border);margin:0 .1rem;display:inline-block;vertical-align:middle}
+.jbtn{border-radius:7px;padding:.3rem .72rem;font-size:.71rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .18s;white-space:nowrap;display:inline-flex;align-items:center;gap:.25rem}
+.jbtn.g{background:rgba(200,240,100,.08);border:1px solid rgba(200,240,100,.22);color:#c8f064}.jbtn.g:hover{background:rgba(200,240,100,.18)}
+.jbtn.b{background:rgba(100,212,240,.08);border:1px solid rgba(100,212,240,.22);color:#64d4f0}.jbtn.b:hover{background:rgba(100,212,240,.18)}
+.jbtn.o{background:rgba(240,160,100,.08);border:1px solid rgba(240,160,100,.22);color:#f0a064}.jbtn.o:hover{background:rgba(240,160,100,.18)}
+.jbtn.p{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.22);color:#a78bfa}.jbtn.p:hover{background:rgba(167,139,250,.18)}
+
+.page-header{padding:3rem 2rem 1.5rem;text-align:center;position:relative}
+.page-header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 60% at 50% 30%,rgba(100,212,240,.06) 0%,transparent 70%);pointer-events:none}
+.page-tag{display:inline-block;background:rgba(100,212,240,.1);border:1px solid rgba(100,212,240,.3);color:var(--accent);font-size:.72rem;letter-spacing:2px;text-transform:uppercase;padding:.3rem .9rem;border-radius:100px;margin-bottom:.9rem}
+.page-header h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.6rem);font-weight:900;letter-spacing:-1.5px}
+.page-header p{color:var(--muted);margin-top:.5rem;font-size:.9rem}
+
+.main-wrap{max-width:1100px;margin:0 auto;padding:0 2rem 5rem}
+
+/* SCORE CARDS */
+.score-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;margin-bottom:1.8rem}
+@media(max-width:640px){.score-row{grid-template-columns:1fr}}
+.score-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.6rem 1.8rem;text-align:center;position:relative;overflow:hidden;transition:border-color .3s}
+.score-card:hover{border-color:rgba(100,212,240,.3)}
+.score-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;filter:blur(60px);opacity:.08}
+.score-card.daily::before{background:var(--accent)}
+.score-card.weekly::before{background:var(--accent4)}
+.score-card.monthly::before{background:var(--accent2)}
+.sc-label{font-size:.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem}
+.sc-score{font-family:'Playfair Display',serif;font-size:3rem;font-weight:900;line-height:1}
+.sc-score.daily{color:var(--accent)}
+.sc-score.weekly{color:var(--accent4)}
+.sc-score.monthly{color:var(--accent2)}
+.sc-max{font-size:.75rem;color:var(--muted);margin-top:.2rem}
+.sc-bar{height:5px;background:var(--surface);border-radius:10px;margin-top:.9rem;overflow:hidden}
+.sc-bar-fill{height:100%;border-radius:10px;transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+.sc-comment{font-size:.78rem;color:var(--muted);margin-top:.65rem;line-height:1.4}
+
+/* LOG FORM */
+.log-form{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.8rem;margin-bottom:1.8rem}
+.lf-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;margin-bottom:1.3rem;display:flex;align-items:center;gap:.5rem}
+.lf-grid{display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:.9rem;align-items:end}
+@media(max-width:760px){.lf-grid{grid-template-columns:1fr 1fr}}
+.lf-field{display:flex;flex-direction:column;gap:.3rem}
+.lf-field label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:500}
+.lf-input{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.65rem .85rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:100%}
+.lf-input:focus{border-color:var(--accent)}.lf-input::placeholder{color:var(--muted)}
+.lf-select{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.65rem .85rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:100%;cursor:pointer}
+.lf-select:focus{border-color:var(--accent)}
+.lf-select option{background:var(--surface)}
+.lf-btn{height:42px;padding:0 1.4rem;background:var(--accent);color:#0d0f14;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:opacity .2s,transform .18s;white-space:nowrap}
+.lf-btn:hover{opacity:.85;transform:translateY(-2px)}
+
+/* QUALITY SELECTOR */
+.quality-btns{display:flex;gap:.4rem;flex-wrap:wrap}
+.qbtn{padding:.45rem .85rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.8rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .18s;white-space:nowrap}
+.qbtn:hover{border-color:var(--accent);color:var(--text)}
+.qbtn.sel{border-color:var(--accent);background:rgba(100,212,240,.12);color:var(--accent);font-weight:600}
+
+/* INSIGHT BOX */
+.insight-box{background:var(--card);border:1px solid rgba(100,212,240,.2);border-radius:16px;padding:1.4rem 1.6rem;margin-bottom:1.8rem;display:none}
+.insight-box.show{display:block}
+.ib-title{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--accent);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem}
+.ib-comment{font-size:.88rem;color:var(--text);line-height:1.65;margin-bottom:1rem;padding:.8rem 1rem;background:var(--surface);border-radius:10px;border-left:3px solid var(--accent)}
+.ib-tips{display:flex;flex-direction:column;gap:.5rem}
+.ib-tip{display:flex;align-items:flex-start;gap:.6rem;font-size:.84rem;color:var(--muted);line-height:1.5}
+.ib-tip-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+
+/* HISTORY */
+.history-section{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:1.8rem}
+.hs-header{padding:1.2rem 1.6rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem}
+.hs-header h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700}
+.hs-tabs{display:flex;gap:.4rem}
+.hs-tab{padding:.32rem .8rem;border-radius:7px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.75rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.hs-tab.active{background:rgba(100,212,240,.12);border-color:var(--accent);color:var(--accent);font-weight:600}
+.hs-body{padding:.8rem 1rem}
+.sleep-entry{display:flex;align-items:center;gap:1rem;padding:.75rem .6rem;border-bottom:1px solid var(--border);animation:fadeIn .2s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.sleep-entry:last-child{border-bottom:none}
+.se-date{font-size:.78rem;color:var(--muted);width:90px;flex-shrink:0}
+.se-bar-wrap{flex:1;height:10px;background:var(--surface);border-radius:10px;overflow:hidden}
+.se-bar-fill{height:100%;border-radius:10px;transition:width .6s ease}
+.se-hrs{font-size:.82rem;font-weight:700;width:50px;flex-shrink:0;text-align:right}
+.se-quality{font-size:.75rem;padding:.15rem .5rem;border-radius:5px;white-space:nowrap}
+.se-score{font-size:.78rem;font-weight:700;width:45px;flex-shrink:0;text-align:right}
+.se-del{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:.68rem;padding:.18rem .45rem;cursor:pointer;transition:all .18s;flex-shrink:0}
+.se-del:hover{border-color:#f06464;color:#f06464}
+.hs-empty{padding:2rem;text-align:center;color:var(--muted);font-size:.88rem}
+
+/* CHART BAR */
+.chart-wrap{padding:1rem 1.2rem;border-top:1px solid var(--border)}
+.chart-bars{display:flex;align-items:flex-end;gap:.35rem;height:80px}
+.cbar-wrap{display:flex;flex-direction:column;align-items:center;gap:.25rem;flex:1}
+.cbar{width:100%;border-radius:4px 4px 0 0;transition:height .5s cubic-bezier(.34,1.56,.64,1),background .3s;cursor:pointer;min-height:2px}
+.cbar:hover{opacity:.8}
+.cbar-label{font-size:.6rem;color:var(--muted);white-space:nowrap}
+
+footer{padding:2rem 2.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-logo{font-family:'Playfair Display',serif;font-weight:900;color:var(--accent);font-size:1.1rem}
+footer p{color:var(--muted);font-size:.78rem}
+
+/* ENTRY TYPE TOGGLE */
+.entry-type-toggle{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.ett-btn{padding:.42rem 1.15rem;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.83rem;cursor:pointer;transition:all .2s;font-weight:500}
+.ett-btn:hover{border-color:var(--accent);color:var(--text)}
+.ett-btn.active{background:rgba(100,212,240,.12);border-color:var(--accent);color:var(--accent);font-weight:700}
+.ett-btn.nap-active{background:rgba(167,139,250,.12);border-color:var(--accent4);color:var(--accent4);font-weight:700}
+
+/* NAP STRIP */
+.nap-strip{background:var(--card);border:1px solid rgba(167,139,250,.25);border-radius:16px;padding:1rem 1.8rem;margin-bottom:1.8rem;display:none;align-items:center;gap:1.8rem;flex-wrap:wrap;justify-content:center}
+.nap-strip.show{display:flex}
+.nsi{display:flex;align-items:center;gap:.55rem;font-size:.84rem}
+.nsi-icon{font-size:1.05rem}
+.nsi-label{color:var(--muted)}
+.nsi-val{color:var(--accent4);font-weight:700;font-family:'Playfair Display',serif;font-size:1.05rem}
+.nsi-divider{width:1px;height:22px;background:var(--border)}
+
+/* NAP TYPE BADGE IN HISTORY */
+.se-type{font-size:.65rem;padding:.1rem .48rem;border-radius:5px;white-space:nowrap;flex-shrink:0;border:1px solid}
+.se-type-sleep{background:rgba(100,212,240,.08);border-color:rgba(100,212,240,.2);color:var(--accent)}
+.se-type-nap{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.28);color:var(--accent4)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">FocuslyNow</a>
+  <ul class="nav-links">
+    <li><a href="habit-tracker.html" class="jbtn g">🌿 Habits</a></li>
+    <li><a href="schedule-maker.html" class="jbtn b">📅 Schedule</a></li>
+    <li><a href="notes.html" class="jbtn o">📝 Notes</a></li>
+    <li><a href="focus-timer.html" class="jbtn o">⏱ Timer</a></li>
+    <li><a href="todo.html" class="jbtn p">🎯 To-Do</a></li>
+    <li><a href="sleep-tracker.html" class="jbtn b">🌙 Sleep</a></li>
+    <li><a href="water-tracker.html" class="jbtn b">💧 Water</a></li>
+    <li><a href="goal-tracker.html" class="jbtn g">🏆 Goals</a></li>
+    <li class="nav-more-wrap">
+      <button class="jbtn more-btn" onclick="FN_toggleMore()">⋯ More</button>
+      <div class="nav-more-dropdown" id="moreNavDrop">
+        <a href="reminders.html">🔔 Reminders</a>
+        <a href="weekly-review.html">📊 Report</a>
+        <a href="data.html">💾 Data Backup</a>
+      </div>
+    </li>
+    <li><button class="fn-theme-btn" onclick="FN_toggleTheme()">☀</button></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <div class="page-tag">🌙 Sleep Tracker</div>
+  <h1>Track Your Sleep</h1>
+  <p>Log your sleep, get a score, and build better rest habits every night.</p>
+</div>
+
+<div class="main-wrap">
+
+  <!-- SCORE CARDS -->
+  <div class="score-row">
+    <div class="score-card daily">
+      <div class="sc-label">Today's Score</div>
+      <div class="sc-score daily" id="scoreDaily">—</div>
+      <div class="sc-max">out of 100</div>
+      <div class="sc-bar"><div class="sc-bar-fill" id="scoreBarDaily" style="width:0%;background:var(--accent)"></div></div>
+      <div class="sc-comment" id="commentDaily">No sleep logged yet.</div>
+    </div>
+    <div class="score-card weekly">
+      <div class="sc-label">7-Day Average</div>
+      <div class="sc-score weekly" id="scoreWeekly">—</div>
+      <div class="sc-max">out of 100</div>
+      <div class="sc-bar"><div class="sc-bar-fill" id="scoreBarWeekly" style="width:0%;background:var(--accent4)"></div></div>
+      <div class="sc-comment" id="commentWeekly">Log at least 2 nights to see your weekly score.</div>
+    </div>
+    <div class="score-card monthly">
+      <div class="sc-label">30-Day Average</div>
+      <div class="sc-score monthly" id="scoreMonthly">—</div>
+      <div class="sc-max">out of 100</div>
+      <div class="sc-bar"><div class="sc-bar-fill" id="scoreBarMonthly" style="width:0%;background:var(--accent2)"></div></div>
+      <div class="sc-comment" id="commentMonthly">Log at least 5 nights to see your monthly score.</div>
+    </div>
+  </div>
+
+  <!-- NAP STRIP — shown once any nap is logged -->
+  <div class="nap-strip" id="napStrip">
+    <div class="nsi"><span class="nsi-icon">💤</span><span class="nsi-label">Today's nap:</span><span class="nsi-val" id="napToday">—</span></div>
+    <div class="nsi-divider"></div>
+    <div class="nsi"><span class="nsi-icon">📊</span><span class="nsi-label">Naps this week:</span><span class="nsi-val" id="napWeek">0</span></div>
+    <div class="nsi-divider"></div>
+    <div class="nsi"><span class="nsi-icon">🌓</span><span class="nsi-label">Total rest today:</span><span class="nsi-val" id="totalToday">—</span></div>
+  </div>
+
+  <div class="log-form">
+    <div class="entry-type-toggle">
+      <button class="ett-btn active" id="ett-sleep" onclick="setEntryType('sleep')">🛌 Night Sleep</button>
+      <button class="ett-btn" id="ett-nap" onclick="setEntryType('nap')">💤 Nap</button>
+    </div>
+    <div class="lf-title" id="logFormTitle">🛌 Log Sleep Entry</div>
+    <div class="lf-grid">
+      <div class="lf-field">
+        <label id="labelDate">Date (night of)</label>
+        <input type="date" class="lf-input" id="sleepDate"/>
+      </div>
+      <div class="lf-field">
+        <label id="labelBed">Bedtime</label>
+        <input type="time" class="lf-input" id="sleepBed" value="23:00"/>
+      </div>
+      <div class="lf-field">
+        <label id="labelWake">Wake Time</label>
+        <input type="time" class="lf-input" id="sleepWake" value="07:00"/>
+      </div>
+      <div class="lf-field">
+        <label>Sleep Quality</label>
+        <select class="lf-select" id="sleepQuality">
+          <option value="excellent">😴 Excellent</option>
+          <option value="good" selected>🙂 Good</option>
+          <option value="fair">😐 Fair</option>
+          <option value="poor">😓 Poor</option>
+          <option value="terrible">😩 Terrible</option>
+        </select>
+      </div>
+      <button class="lf-btn" id="logBtn" onclick="logSleep()">Log Sleep</button>
+    </div>
+    <div style="margin-top:1rem">
+      <div class="lf-field">
+        <label>Notes (optional)</label>
+        <input type="text" class="lf-input" id="sleepNote" placeholder="e.g. Woke up twice, caffeine late…"/>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHT BOX -->
+  <div class="insight-box" id="insightBox">
+    <div class="ib-title">💡 Sleep Insights</div>
+    <div class="ib-comment" id="ibComment">—</div>
+    <div class="ib-tips" id="ibTips"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="history-section">
+    <div class="hs-header">
+      <h3>📊 Sleep History</h3>
+      <div class="hs-tabs">
+        <button class="hs-tab active" onclick="setHistView('week')">7 Days</button>
+        <button class="hs-tab" onclick="setHistView('month')">30 Days</button>
+        <button class="hs-tab" onclick="setHistView('all')">All Time</button>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-bars" id="chartBars"></div>
+    </div>
+    <div class="hs-body" id="historyList"></div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">FocuslyNow</div>
+  <p>&copy; 2026 FocuslyNow. All rights reserved.</p>
+</footer>
+
+<script>
+
+function fnAlert(msg, icon) {
+  document.getElementById('fnAlertIcon').textContent = icon || '⚠️';
+  document.getElementById('fnAlertMsg').textContent = msg;
+  document.getElementById('fnAlertOverlay').style.display = 'flex';
+}
+var _fnConfirmCb = null;
+function fnConfirm(msg, cb) {
+  document.getElementById('fnConfirmMsg').textContent = msg;
+  document.getElementById('fnConfirmOverlay').style.display = 'flex';
+  _fnConfirmCb = cb;
+}
+function fnConfirmOK()    { document.getElementById('fnConfirmOverlay').style.display='none'; if(_fnConfirmCb) _fnConfirmCb(); _fnConfirmCb=null; }
+function fnConfirmCancel(){ document.getElementById('fnConfirmOverlay').style.display='none'; _fnConfirmCb=null; }
+
+var SLEEP_KEY = 'fn_sleep_v1';
+var histView = 'week';
+var entryType = 'sleep'; // 'sleep' | 'nap'
+
+function load(){ try{ return JSON.parse(localStorage.getItem(SLEEP_KEY)||'[]'); }catch(e){ return []; } }
+function save(data){ localStorage.setItem(SLEEP_KEY, JSON.stringify(data)); }
+function dateKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function esc(s){ var d=document.createElement('div');d.textContent=s;return d.innerHTML; }
+
+/* ── ENTRY TYPE TOGGLE ── */
+function setEntryType(type){
+  entryType = type;
+  var isSleep = type === 'sleep';
+  document.getElementById('ett-sleep').className = 'ett-btn'+(isSleep?' active':'');
+  document.getElementById('ett-nap').className   = 'ett-btn'+(!isSleep?' nap-active':'');
+  document.getElementById('logFormTitle').textContent = isSleep ? '🛌 Log Sleep Entry' : '💤 Log Nap';
+  document.getElementById('labelDate').textContent    = isSleep ? 'Date (night of)' : 'Nap Date';
+  document.getElementById('labelBed').textContent     = isSleep ? 'Bedtime' : 'Nap Start';
+  document.getElementById('labelWake').textContent    = isSleep ? 'Wake Time' : 'Nap End';
+  document.getElementById('logBtn').textContent       = isSleep ? 'Log Sleep' : 'Log Nap';
+  document.getElementById('sleepNote').placeholder    = isSleep
+    ? 'e.g. Woke up twice, caffeine late…'
+    : 'e.g. After lunch, felt refreshed…';
+  if(!isSleep){
+    document.getElementById('sleepBed').value  = '13:00';
+    document.getElementById('sleepWake').value = '13:20';
+  } else {
+    document.getElementById('sleepBed').value  = '23:00';
+    document.getElementById('sleepWake').value = '07:00';
+  }
+}
+
+/* ── SCORE ENGINE ── */
+function calcScore(hrs, quality){
+  // Duration score (max 60pts) — ideal 7-9h
+  var durScore;
+  if(hrs >= 7 && hrs <= 9)       durScore = 60;
+  else if(hrs >= 6 && hrs < 7)   durScore = 45;
+  else if(hrs > 9 && hrs <= 10)  durScore = 48;
+  else if(hrs >= 5 && hrs < 6)   durScore = 28;
+  else if(hrs > 10)              durScore = 32;
+  else                            durScore = Math.max(0, hrs * 8);
+
+  // Quality score (max 40pts)
+  var qMap = { excellent:40, good:32, fair:20, poor:10, terrible:3 };
+  var qualScore = qMap[quality] || 20;
+
+  return Math.min(100, Math.round(durScore + qualScore));
+}
+
+function scoreColor(s){
+  if(s >= 80) return '#a3e635';
+  if(s >= 60) return 'var(--accent)';
+  if(s >= 40) return 'var(--accent3)';
+  return '#f06464';
+}
+
+function scoreComment(s, hrs){
+  if(s >= 85) return '🌟 Outstanding sleep! Your body is well rested and ready to perform at its best.';
+  if(s >= 70) return '✅ Good sleep night. You got solid rest — keep this up consistently.';
+  if(s >= 55) return '🙂 Decent sleep, but there is room for improvement. Try to hit 7–8 hours more regularly.';
+  if(s >= 40) return '⚠️ Below average rest. Catching up tonight could make a real difference to your energy.';
+  return '😓 Poor sleep detected. Your body likely needs recovery. Prioritise rest tonight.';
+}
+
+/* ── NAP SCORE ENGINE ── */
+function calcNapScore(hrs, quality){
+  var mins = hrs * 60;
+  var durScore;
+  if(mins >= 10 && mins <= 30)     durScore = 60; // ideal power nap
+  else if(mins > 30 && mins <= 60) durScore = 42; // decent but risks grogginess
+  else if(mins > 60 && mins <= 90) durScore = 50; // full sleep cycle
+  else if(mins > 90)               durScore = 28; // too long
+  else if(mins >= 5)               durScore = 48; // micro nap
+  else                             durScore = 18;
+  var qMap={excellent:40,good:32,fair:20,poor:10,terrible:3};
+  return Math.min(100, Math.round(durScore + (qMap[quality]||20)));
+}
+
+function napScoreComment(score, mins){
+  if(mins >= 10 && mins <= 30) return '⚡ Perfect power nap! 10–30 minutes is the sweet spot for alertness without sleep inertia.';
+  if(mins > 90) return '⚠️ Long nap may cause grogginess (sleep inertia) and can reduce your drive for night sleep. Try under 30 min.';
+  if(mins > 60) return '😴 Full sleep-cycle nap. You may feel groggy for a few minutes but should recover well.';
+  if(mins < 10) return '💤 Micro-nap! Even brief rest reduces fatigue. Try extending to 10–20 min for maximum benefit.';
+  return '✅ Good nap. You should feel more alert within 10–20 minutes of waking.';
+}
+
+/* ── TIPS ── */
+function getTips(hrs, quality, avgHrs){
+  var tips = [];
+  if(hrs < 6) tips.push({icon:'⏰', text:'You slept under 6 hours. Chronic sleep deprivation affects memory, mood and immunity. Aim for a consistent 7–8h.'});
+  if(hrs > 10) tips.push({icon:'⚖️', text:'Oversleeping can signal fatigue debt or low mood. Try to regulate your sleep schedule with consistent wake times.'});
+  if(quality === 'poor' || quality === 'terrible') tips.push({icon:'📵', text:'Poor quality sleep is often linked to screen exposure before bed. Try a 30-min screen-free wind-down.'});
+  if(quality === 'fair') tips.push({icon:'🌡️', text:'A cool room (18–20°C) dramatically improves sleep quality. Consider adjusting your sleeping environment.'});
+  if(avgHrs && avgHrs < 6.5) tips.push({icon:'📅', text:'Your 7-day average is low. Build a consistent schedule — going to bed and waking at the same time trains your body clock.'});
+  tips.push({icon:'☀️', text:'Morning sunlight within 30 minutes of waking helps regulate your circadian rhythm and improves next-night sleep.'});
+  tips.push({icon:'🍵', text:'Avoid caffeine after 2 PM. Its half-life is 5–6 hours, so an evening coffee can delay sleep onset significantly.'});
+  if(tips.length > 4) tips = tips.slice(0,4);
+  return tips;
+}
+
+/* ── TIME UTILS ── */
+function calcHours(bed, wake){
+  var bm = parseInt(bed.split(':')[0])*60 + parseInt(bed.split(':')[1]);
+  var wm = parseInt(wake.split(':')[0])*60 + parseInt(wake.split(':')[1]);
+  if(wm <= bm) wm += 1440;
+  return (wm - bm) / 60;
+}
+
+function fmtHrs(h){
+  var hrs = Math.floor(h);
+  var mins = Math.round((h - hrs)*60);
+  if(mins) return hrs+'h '+mins+'m';
+  return hrs+'h';
+}
+
+/* ── LOG ── */
+function logSleep(){
+  var date    = document.getElementById('sleepDate').value;
+  var bed     = document.getElementById('sleepBed').value;
+  var wake    = document.getElementById('sleepWake').value;
+  var quality = document.getElementById('sleepQuality').value;
+  var note    = document.getElementById('sleepNote').value.trim();
+  var type    = entryType; // 'sleep' | 'nap'
+
+  if(!date){ fnAlert('Please select a date.','📅'); return; }
+  if(!bed || !wake){ fnAlert('Please set '+(type==='nap'?'nap start':'bedtime')+' and '+(type==='nap'?'nap end':'wake time.')); return; }
+
+  var hrs = calcHours(bed, wake);
+  var maxHrs = type === 'nap' ? 4 : 18;
+  if(hrs < 0.05 || hrs > maxHrs){ fnAlert((type==='nap'?'Nap':'Sleep')+' duration seems off. Please check your times.','⏰'); return; }
+
+  var score = type === 'nap' ? calcNapScore(hrs, quality) : calcScore(hrs, quality);
+  var data = load();
+
+  if(type === 'sleep'){
+    // Replace existing SLEEP entry for same date; keep nap entries for that date
+    data = data.filter(function(e){ return !(e.date===date && (e.type==='sleep'||!e.type)); });
+  }
+  // Naps: allow multiple per day, no replacement
+  data.push({ id:Date.now(), date:date, bed:bed, wake:wake, quality:quality, hrs:hrs, score:score, note:note, type:type });
+  data.sort(function(a,b){ return b.date.localeCompare(a.date) || (b.bed||'').localeCompare(a.bed||''); });
+  save(data);
+
+  document.getElementById('sleepNote').value = '';
+  renderAll();
+
+  // Show insight
+  var sleepOnly = data.filter(function(e){ return !e.type || e.type==='sleep'; });
+  var avgData   = sleepOnly.slice(0,7);
+  var avgHrs    = avgData.length ? avgData.reduce(function(s,e){return s+e.hrs;},0)/avgData.length : null;
+
+  if(type === 'nap'){
+    var box = document.getElementById('insightBox');
+    box.classList.add('show');
+    document.getElementById('ibComment').textContent = napScoreComment(score, Math.round(hrs*60));
+    var tips = [
+      {icon:'⏰', text:'The best time for a nap is early afternoon (1–3 PM), aligned with the natural post-lunch alertness dip.'},
+      {icon:'☕', text:'Try a "nappuccino": drink a coffee right before your nap. Caffeine kicks in after ~20 min — you wake up alert and energised!'},
+      {icon:'📵', text:'Keep your space dark and cool for your nap. Even brief light exposure can prevent deep rest.'}
+    ];
+    if(hrs > 1.5) tips.unshift({icon:'⚠️', text:'Naps over 90 minutes reduce your sleep pressure for the night and can cause sleep inertia. Try to keep them shorter.'});
+    document.getElementById('ibTips').innerHTML = tips.slice(0,3).map(function(t){
+      return '<div class="ib-tip"><span class="ib-tip-icon">'+t.icon+'</span><span>'+esc(t.text)+'</span></div>';
+    }).join('');
+  } else {
+    showInsight(hrs, quality, score, avgHrs);
+  }
+}
+
+/* ── INSIGHT ── */
+function showInsight(hrs, quality, score, avgHrs){
+  var box = document.getElementById('insightBox');
+  box.classList.add('show');
+  document.getElementById('ibComment').textContent = scoreComment(score, hrs);
+  var tips = getTips(hrs, quality, avgHrs);
+  document.getElementById('ibTips').innerHTML = tips.map(function(t){
+    return '<div class="ib-tip"><span class="ib-tip-icon">'+t.icon+'</span><span>'+esc(t.text)+'</span></div>';
+  }).join('');
+}
+
+/* ── RENDER SCORES ── */
+function renderScores(){
+  var data      = load();
+  var sleepData = data.filter(function(e){ return !e.type || e.type==='sleep'; });
+  var today     = dateKey(new Date());
+  var todayEntry = sleepData.find(function(e){ return e.date === today; });
+
+  // Daily
+  if(todayEntry){
+    var s = todayEntry.score;
+    document.getElementById('scoreDaily').textContent = s;
+    document.getElementById('scoreBarDaily').style.width = s+'%';
+    document.getElementById('scoreBarDaily').style.background = scoreColor(s);
+    document.getElementById('commentDaily').textContent = scoreComment(s, todayEntry.hrs) + ' (' + fmtHrs(todayEntry.hrs) + ')';
+  } else {
+    document.getElementById('scoreDaily').textContent = '—';
+    document.getElementById('scoreBarDaily').style.width = '0%';
+    document.getElementById('commentDaily').textContent = 'No sleep logged for today yet.';
+  }
+
+  // Weekly (last 7) — sleep only
+  var weekData = sleepData.filter(function(e){
+    var d = new Date(e.date+'T00:00:00');
+    var cutoff = new Date(); cutoff.setDate(cutoff.getDate()-7);
+    return d >= cutoff;
+  });
+  if(weekData.length >= 2){
+    var wAvg = Math.round(weekData.reduce(function(s,e){return s+e.score;},0)/weekData.length);
+    document.getElementById('scoreWeekly').textContent = wAvg;
+    document.getElementById('scoreBarWeekly').style.width = wAvg+'%';
+    document.getElementById('scoreBarWeekly').style.background = scoreColor(wAvg);
+    var wAvgHrs = weekData.reduce(function(s,e){return s+e.hrs;},0)/weekData.length;
+    document.getElementById('commentWeekly').textContent = 'Avg ' + fmtHrs(wAvgHrs) + '/night over '+weekData.length+' nights logged.';
+  } else {
+    document.getElementById('scoreWeekly').textContent = weekData.length ? weekData[0].score : '—';
+    document.getElementById('commentWeekly').textContent = 'Log at least 2 nights to see your weekly average.';
+  }
+
+  // Monthly (last 30) — sleep only
+  var monthData = sleepData.filter(function(e){
+    var d = new Date(e.date+'T00:00:00');
+    var cutoff2 = new Date(); cutoff2.setDate(cutoff2.getDate()-30);
+    return d >= cutoff2;
+  });
+  if(monthData.length >= 5){
+    var mAvg = Math.round(monthData.reduce(function(s,e){return s+e.score;},0)/monthData.length);
+    document.getElementById('scoreMonthly').textContent = mAvg;
+    document.getElementById('scoreBarMonthly').style.width = mAvg+'%';
+    document.getElementById('scoreBarMonthly').style.background = scoreColor(mAvg);
+    var mAvgHrs = monthData.reduce(function(s,e){return s+e.hrs;},0)/monthData.length;
+    document.getElementById('commentMonthly').textContent = 'Avg ' + fmtHrs(mAvgHrs) + '/night over '+monthData.length+' nights.';
+  } else {
+    document.getElementById('scoreMonthly').textContent = monthData.length ? Math.round(monthData.reduce(function(s,e){return s+e.score;},0)/monthData.length) : '—';
+    document.getElementById('commentMonthly').textContent = 'Log at least 5 nights to see your monthly average.';
+  }
+}
+
+/* ── RENDER NAP STRIP ── */
+function renderNapStrip(){
+  var data    = load();
+  var napData = data.filter(function(e){ return e.type==='nap'; });
+  var strip   = document.getElementById('napStrip');
+  if(!napData.length){ strip.classList.remove('show'); return; }
+  strip.classList.add('show');
+
+  var today      = dateKey(new Date());
+  var todayNaps  = napData.filter(function(e){ return e.date===today; });
+  var weekCutoff = new Date(); weekCutoff.setDate(weekCutoff.getDate()-7);
+  var weekNaps   = napData.filter(function(e){ return new Date(e.date+'T00:00:00')>=weekCutoff; });
+
+  if(todayNaps.length){
+    var totalNapHrs = todayNaps.reduce(function(s,e){return s+e.hrs;},0);
+    document.getElementById('napToday').textContent = fmtHrs(totalNapHrs)
+      +' ('+todayNaps.length+' nap'+(todayNaps.length>1?'s':'')+')';
+    var sleepToday = data.filter(function(e){ return (!e.type||e.type==='sleep')&&e.date===today; });
+    var nightHrs   = sleepToday.reduce(function(s,e){return s+e.hrs;},0);
+    document.getElementById('totalToday').textContent = nightHrs>0 ? fmtHrs(nightHrs+totalNapHrs) : fmtHrs(totalNapHrs)+' (nap only)';
+  } else {
+    document.getElementById('napToday').textContent   = 'None logged';
+    document.getElementById('totalToday').textContent = '—';
+  }
+  document.getElementById('napWeek').textContent = weekNaps.length;
+}
+
+/* ── RENDER HISTORY ── */
+function setHistView(v){ histView=v; document.querySelectorAll('.hs-tab').forEach(function(t){t.classList.toggle('active',t.textContent.includes(v==='week'?'7':v==='month'?'30':'All'));}); renderHistory(); }
+
+function renderHistory(){
+  var data = load();
+  var filtered = data;
+  if(histView === 'week'){
+    var cutoff=new Date();cutoff.setDate(cutoff.getDate()-7);
+    filtered = data.filter(function(e){return new Date(e.date+'T00:00:00')>=cutoff;});
+  } else if(histView === 'month'){
+    var cutoff2=new Date();cutoff2.setDate(cutoff2.getDate()-30);
+    filtered = data.filter(function(e){return new Date(e.date+'T00:00:00')>=cutoff2;});
+  }
+
+  // Chart — sleep entries only (naps are too short to scale sensibly against night sleep)
+  var sleepFiltered = filtered.filter(function(e){ return !e.type || e.type==='sleep'; });
+  var chartData = sleepFiltered.slice().reverse().slice(-14);
+  var maxHrs = Math.max.apply(null, chartData.map(function(e){return e.hrs;})) || 9;
+  var chartHtml = chartData.map(function(e){
+    var pct = Math.round((e.hrs/Math.max(maxHrs,9))*100);
+    var col = scoreColor(e.score);
+    var day = new Date(e.date+'T00:00:00').toLocaleDateString('en-IN',{weekday:'short'});
+    return '<div class="cbar-wrap" title="'+fmtHrs(e.hrs)+' — Score: '+e.score+'">'
+      +'<div class="cbar" style="height:'+pct+'%;background:'+col+';min-height:4px"></div>'
+      +'<span class="cbar-label">'+day+'</span>'
+      +'</div>';
+  }).join('');
+  document.getElementById('chartBars').innerHTML = chartHtml || '<div style="color:var(--muted);font-size:.82rem;padding:.5rem">No data yet</div>';
+
+  // List — all entries including naps
+  var QLABELS = { excellent:'😴 Excellent', good:'🙂 Good', fair:'😐 Fair', poor:'😓 Poor', terrible:'😩 Terrible' };
+  var QCOLORS = { excellent:'rgba(163,230,53,.15)', good:'rgba(100,212,240,.12)', fair:'rgba(240,160,100,.12)', poor:'rgba(240,100,100,.12)', terrible:'rgba(240,80,80,.18)' };
+  var QTXT    = { excellent:'#a3e635', good:'var(--accent)', fair:'var(--accent3)', poor:'#f08464', terrible:'#f06464' };
+
+  if(!filtered.length){
+    document.getElementById('historyList').innerHTML='<div class="hs-empty">No entries yet. Log your first night or nap above!</div>';
+    return;
+  }
+
+  document.getElementById('historyList').innerHTML = filtered.map(function(e){
+    var isNap  = e.type === 'nap';
+    var d      = new Date(e.date+'T00:00:00');
+    var dateStr= d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+    var barPct = Math.round((e.hrs/(isNap?2:10))*100); // scale nap bar to 2h max
+    var typeBadge = isNap
+      ? '<span class="se-type se-type-nap">💤 Nap</span>'
+      : '<span class="se-type se-type-sleep">🛌 Sleep</span>';
+    return '<div class="sleep-entry">'
+      +'<div class="se-date">'+dateStr+'</div>'
+      +typeBadge
+      +'<div class="se-bar-wrap"><div class="se-bar-fill" style="width:'+Math.min(barPct,100)+'%;background:'+scoreColor(e.score)+'"></div></div>'
+      +'<div class="se-hrs" style="color:'+scoreColor(e.score)+'">'+fmtHrs(e.hrs)+'</div>'
+      +'<div class="se-quality" style="background:'+QCOLORS[e.quality]+';color:'+QTXT[e.quality]+'">'+QLABELS[e.quality]+'</div>'
+      +'<div class="se-score" style="color:'+scoreColor(e.score)+'">'+e.score+'</div>'
+      +'<button class="se-del" data-eid="'+e.id+'" onclick="deleteEntry(this.dataset.eid)">✕</button>'
+      +'</div>';
+  }).join('');
+}
+
+function deleteEntry(id){
+  fnConfirm('Delete this entry?',function(){ _doDeleteSleep(id); }); return;}
+function _doDeleteSleep(id){
+  var data = load().filter(function(e){ return String(e.id) !== String(id); });
+  save(data);
+  renderAll();
+}
+
+function renderAll(){
+  renderScores();
+  renderNapStrip();
+  renderHistory();
+}
+
+/* ── INIT ── */
+var today = new Date();
+document.getElementById('sleepDate').value = dateKey(today);
+renderAll();
+</script>
+<script src="theme.js"></script>
+<script src="reminders.js"></script>
+
+<div id="fnAlertOverlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(4px)">
+  <div style="background:var(--card,#1a1e28);border:1px solid var(--border,#2a2e3d);border-radius:20px;padding:2rem 2.4rem;max-width:380px;width:90%;text-align:center;animation:fnAlIn .25s cubic-bezier(.34,1.56,.64,1)">
+    <div id="fnAlertIcon" style="font-size:2rem;margin-bottom:.7rem">⚠️</div>
+    <div id="fnAlertMsg" style="color:var(--text,#e8eaf2);font-size:.93rem;line-height:1.6;margin-bottom:1.5rem"></div>
+    <button onclick="document.getElementById('fnAlertOverlay').style.display='none'" style="background:var(--accent,#c8f064);color:#0d0f14;border:none;border-radius:10px;padding:.65rem 2rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer">OK</button>
+  </div>
+</div>
+<style>@keyframes fnAlIn{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}</style>
+
+<div id="fnConfirmOverlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(4px)">
+  <div style="background:var(--card,#1a1e28);border:1px solid var(--border,#2a2e3d);border-radius:20px;padding:2rem 2.4rem;max-width:380px;width:90%;text-align:center;animation:fnAlIn .25s cubic-bezier(.34,1.56,.64,1)">
+    <div style="font-size:2rem;margin-bottom:.7rem">🗑️</div>
+    <div id="fnConfirmMsg" style="color:var(--text,#e8eaf2);font-size:.93rem;line-height:1.6;margin-bottom:1.5rem"></div>
+    <div style="display:flex;gap:.7rem;justify-content:center">
+      <button onclick="fnConfirmCancel()" style="padding:.6rem 1.3rem;background:transparent;border:1px solid var(--border,#2a2e3d);border-radius:10px;color:var(--muted,#7a7f96);font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer">Cancel</button>
+      <button onclick="fnConfirmOK()" style="padding:.6rem 1.4rem;background:#f06464;border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer">Delete</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

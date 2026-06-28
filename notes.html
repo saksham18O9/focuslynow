@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Notes — FocuslyNow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0f14;--card:#1a1e28;--surface:#111318;--accent:#f0a064;--accent2:#64d4f0;--accent3:#c8f064;--text:#e8eaf2;--muted:#7a7f96;--border:#2a2e3d;--danger:#f06464}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+
+
+
+
+
+.jbtn:hover{background:rgba(240,160,100,.2)}
+
+.jbtn.b:hover{background:rgba(100,212,240,.2)}
+
+.jbtn.g:hover{background:rgba(200,240,100,.2)}
+.page-header{padding:3rem 2rem 1.2rem;text-align:center}
+.page-tag{display:inline-block;background:rgba(240,160,100,.1);border:1px solid rgba(240,160,100,.3);color:var(--accent);font-size:.72rem;letter-spacing:2px;text-transform:uppercase;padding:.3rem .9rem;border-radius:100px;margin-bottom:.9rem}
+.page-header h1{font-family:'Playfair Display',serif;font-size:clamp(1.9rem,5vw,3.5rem);font-weight:900;letter-spacing:-1.5px}
+.page-header p{color:var(--muted);margin-top:.6rem;font-size:.93rem}
+.qs-wrap{padding:0 2rem 1.3rem;display:flex;justify-content:center}
+.qs-inner{max-width:960px;width:100%;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem 1.6rem;display:flex;align-items:center;gap:1rem;position:relative;overflow:hidden}
+.qs-inner::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent);border-radius:4px 0 0 4px}
+.qs-mark{font-family:'Playfair Display',serif;font-size:2rem;color:var(--accent);opacity:.25;line-height:1;flex-shrink:0}
+.qs-body{flex:1}.qs-text{font-family:'Playfair Display',serif;font-size:.93rem;font-weight:700;line-height:1.5;transition:opacity .4s}
+.qs-author{font-size:.73rem;color:var(--accent);margin-top:.18rem;text-transform:uppercase;letter-spacing:1px;transition:opacity .4s}
+.qs-meta{display:flex;align-items:center;gap:.4rem;margin-top:.2rem}
+.qs-cat{font-size:.63rem;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:100px;padding:.1rem .45rem;letter-spacing:1px;text-transform:uppercase}
+.qs-timer{font-size:.63rem;color:var(--muted)}
+.qs-next{background:rgba(240,160,100,.08);border:1px solid rgba(240,160,100,.18);color:var(--accent);border-radius:7px;padding:.3rem .65rem;font-size:.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;white-space:nowrap}
+.qs-next:hover{background:rgba(240,160,100,.2)}
+.qs-fade{opacity:0!important}
+.layout{max-width:1280px;margin:0 auto;padding:0 1.5rem 5rem;display:grid;grid-template-columns:380px 1fr;gap:1.8rem;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:1fr}}
+.compose{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.6rem;position:sticky;top:72px}
+.ctitle{font-family:'Playfair Display',serif;font-size:1.05rem;margin-bottom:1.2rem}
+.cfield{display:flex;flex-direction:column;gap:.28rem;margin-bottom:.9rem}
+.cfield label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.cfield input,.cfield select{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.68rem .9rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:100%}
+.cfield input:focus,.cfield select:focus{border-color:var(--accent)}
+.cfield input::placeholder{color:var(--muted)}
+.cfield select option{background:var(--surface)}
+/* BIG TEXTAREA */
+.big-textarea{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.72rem .9rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;resize:vertical;min-height:280px;transition:border-color .2s;width:100%}
+.big-textarea:focus{border-color:var(--accent)}
+.big-textarea::placeholder{color:var(--muted)}
+.cfoot{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.45rem;margin-top:.6rem}
+.cc{font-size:.68rem;color:var(--muted)}
+.save-btn{padding:.62rem 1.3rem;background:var(--accent);color:#0d0f14;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.86rem;cursor:pointer;transition:opacity .2s,transform .2s}
+.save-btn:hover{opacity:.85;transform:translateY(-1px)}
+.list-col{display:flex;flex-direction:column;gap:1.1rem}
+.list-ctrl{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+.search-box{flex:1;min-width:180px;position:relative}
+.search-box input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.58rem .9rem .58rem 2rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s}
+.search-box input:focus{border-color:var(--accent)}
+.si{position:absolute;left:.65rem;top:50%;transform:translateY(-50%);font-size:.82rem;color:var(--muted);pointer-events:none}
+.fsel{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.58rem .75rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;cursor:pointer}
+.sbtn{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.58rem .85rem;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:.78rem;cursor:pointer;transition:all .2s;white-space:nowrap}
+.sbtn:hover{border-color:var(--accent);color:var(--accent)}
+.nbadge{font-size:.7rem;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:.18rem .6rem;white-space:nowrap}
+.notes-grid{display:grid;gap:.85rem}
+.note-card{background:var(--card);border:1px solid var(--border);border-radius:15px;padding:1.2rem 1.3rem;transition:border-color .2s,transform .2s;animation:nIn .22s ease}
+@keyframes nIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+.note-card:hover{border-color:rgba(240,160,100,.28);transform:translateY(-2px)}
+.note-card.editing{border-color:var(--accent)}
+.nc-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:.7rem;margin-bottom:.45rem}
+.nc-h{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;flex:1;word-break:break-word;line-height:1.3}
+.nc-hi{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;background:transparent;border:none;border-bottom:1px solid var(--accent);outline:none;color:var(--text);width:100%;padding:.08rem 0;display:none}
+.nc-acts{display:flex;gap:.28rem;flex-shrink:0}
+.nc-btn{width:25px;height:25px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-size:.7rem;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.nc-btn:hover{background:rgba(240,160,100,.1);border-color:var(--accent);color:var(--accent)}
+.nc-btn.dl:hover{background:rgba(240,100,100,.1);border-color:var(--danger);color:var(--danger)}
+.nc-pin.on{color:var(--accent3);border-color:var(--accent3)}
+.nc-body{font-size:.86rem;color:var(--muted);line-height:1.62;white-space:pre-wrap;word-break:break-word;max-height:160px;overflow:hidden;position:relative}
+.nc-body.exp{max-height:none}
+.nc-body:not(.exp)::after{content:'';position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(transparent,var(--card));pointer-events:none}
+.nc-bi{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:7px;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;line-height:1.6;resize:vertical;min-height:70px;padding:.45rem .65rem;display:none}
+.nc-bi:focus{border-color:var(--accent)}
+.nc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:.55rem;flex-wrap:wrap;gap:.25rem}
+.nc-date{font-size:.65rem;color:var(--border)}
+.nc-foota{display:flex;gap:.35rem;align-items:center}
+.exp-btn{font-size:.68rem;color:var(--muted);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color .2s}
+.exp-btn:hover{color:var(--accent)}
+.edit-save{font-size:.68rem;color:var(--accent);background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;display:none}
+.n-empty{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:.88rem}
+footer{padding:2rem 2.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-top:2rem}
+.footer-logo{font-family:'Playfair Display',serif;font-weight:900;color:var(--accent);font-size:1.1rem}
+footer p{color:var(--muted);font-size:.78rem}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(13,15,20,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:9999;gap:.6rem;overflow:visible}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:.7rem;list-style:none;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.nav-links>li>a{color:var(--muted);text-decoration:none;font-size:.83rem;font-weight:500;transition:color .18s}
+.nav-links>li>a:hover{color:var(--text)}
+.nav-sep{width:1px;height:14px;background:var(--border);margin:0 .1rem;display:inline-block;vertical-align:middle}
+.jbtn{border-radius:7px;padding:.3rem .72rem;font-size:.71rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .18s;white-space:nowrap;display:inline-flex;align-items:center;gap:.25rem}
+.jbtn.g{background:rgba(200,240,100,.08);border:1px solid rgba(200,240,100,.22);color:#c8f064}
+.jbtn.g:hover{background:rgba(200,240,100,.18);border-color:rgba(200,240,100,.4)}
+.jbtn.b{background:rgba(100,212,240,.08);border:1px solid rgba(100,212,240,.22);color:#64d4f0}
+.jbtn.b:hover{background:rgba(100,212,240,.18);border-color:rgba(100,212,240,.4)}
+.jbtn.o{background:rgba(240,160,100,.08);border:1px solid rgba(240,160,100,.22);color:#f0a064}
+.jbtn.o:hover{background:rgba(240,160,100,.18);border-color:rgba(240,160,100,.4)}
+.jbtn.p{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.22);color:#a78bfa}
+.jbtn.p:hover{background:rgba(167,139,250,.18);border-color:rgba(167,139,250,.4)}
+
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">FocuslyNow</a>
+  <ul class="nav-links">
+    <li><a href="habit-tracker.html" class="jbtn g">🌿 Habits</a></li>
+    <li><a href="schedule-maker.html" class="jbtn b">📅 Schedule</a></li>
+    <li><a href="notes.html" class="jbtn o">📝 Notes</a></li>
+    <li><a href="focus-timer.html" class="jbtn o">⏱ Timer</a></li>
+    <li><a href="todo.html" class="jbtn p">🎯 To-Do</a></li>
+    <li><a href="sleep-tracker.html" class="jbtn b">🌙 Sleep</a></li>
+    <li><a href="water-tracker.html" class="jbtn b">💧 Water</a></li>
+    <li><a href="goal-tracker.html" class="jbtn g">🏆 Goals</a></li>
+    <li class="nav-more-wrap">
+      <button class="jbtn more-btn" onclick="FN_toggleMore()">⋯ More</button>
+      <div class="nav-more-dropdown" id="moreNavDrop">
+        <a href="reminders.html">🔔 Reminders</a>
+        <a href="weekly-review.html">📊 Report</a>
+        <a href="data.html">💾 Data Backup</a>
+      </div>
+    </li>
+    <li><button class="fn-theme-btn" onclick="FN_toggleTheme()">☀</button></li>
+  </ul>
+</nav>
+<div class="page-header">
+  <div class="page-tag">📝 Notes</div>
+  <h1>My Notes</h1>
+  <p>Write, tag, pin and search — everything saved in your browser.</p>
+</div>
+<div class="qs-wrap">
+  <div class="qs-inner">
+    <div class="qs-mark">"</div>
+    <div class="qs-body">
+      <div class="qs-text" id="qText">Loading…</div>
+      <div class="qs-author" id="qAuthor"></div>
+      <div class="qs-meta"><span class="qs-cat" id="qCat"></span><span class="qs-timer" id="qTimer">· 1:30</span></div>
+    </div>
+    <button class="qs-next" onclick="nextQuote()">Next ›</button>
+  </div>
+</div>
+<div class="layout">
+  <div class="compose">
+    <div class="ctitle">✍️ New Note</div>
+    <div class="cfield"><label>Heading</label><input type="text" id="nHead" placeholder="Note title…" maxlength="80"/></div>
+    <div class="cfield">
+      <label>Category</label>
+      <select id="nCat">
+        <option value="general">📄 General</option>
+        <option value="ideas">💡 Ideas</option>
+        <option value="work">💼 Work</option>
+        <option value="personal">🌿 Personal</option>
+        <option value="study">📚 Study</option>
+        <option value="goals">🎯 Goals</option>
+      </select>
+    </div>
+    <div class="cfield">
+      <label>Content</label>
+      <textarea class="big-textarea" id="nBody" placeholder="Write your full note here…" maxlength="5000" oninput="updCC()"></textarea>
+    </div>
+    <div class="cfoot">
+      <span class="cc" id="cc">0 / 5000</span>
+      <button class="save-btn" onclick="saveNote()">＋ Save Note</button>
+    </div>
+  </div>
+  <div class="list-col">
+    <div class="list-ctrl">
+      <div class="search-box"><span class="si">🔍</span><input type="text" id="srch" placeholder="Search notes…" oninput="renderNotes()"/></div>
+      <select class="fsel" id="fCat" onchange="renderNotes()">
+        <option value="">All categories</option>
+        <option value="general">📄 General</option>
+        <option value="ideas">💡 Ideas</option>
+        <option value="work">💼 Work</option>
+        <option value="personal">🌿 Personal</option>
+        <option value="study">📚 Study</option>
+        <option value="goals">🎯 Goals</option>
+      </select>
+      <button class="sbtn" onclick="toggleSort()">🔃 <span id="sLbl">Newest</span></button>
+      <span class="nbadge" id="nbadge">0 notes</span>
+    </div>
+    <div class="notes-grid" id="nGrid"></div>
+  </div>
+</div>
+<footer>
+  <div class="footer-logo">FocuslyNow</div>
+  <p>&copy; 2026 FocuslyNow. All rights reserved.</p>
+</footer>
+<script src="quotes.js"></script>
+<script>
+var CAT_LABELS={consistency:"Consistency",motivation:"Motivation",growth:"Growth","hard-work":"Hard Work","smart-work":"Smart Work",heartbreak:"Heartbreak"};
+var qIdx=null,cdInt=null;
+function showQ(q){var t=document.getElementById("qText"),a=document.getElementById("qAuthor"),c=document.getElementById("qCat");t.classList.add("qs-fade");a.classList.add("qs-fade");setTimeout(function(){t.textContent=q.text;a.textContent="— "+q.author;c.textContent=CAT_LABELS[q.cat]||q.cat;t.classList.remove("qs-fade");a.classList.remove("qs-fade")},380)}
+function nextQuote(){qIdx=(qIdx===null?Math.floor(Math.random()*MF_QUOTES.length):(qIdx+1)%MF_QUOTES.length);showQ(MF_QUOTES[qIdx]);startCD(90)}
+function startCD(s){clearInterval(cdInt);var r=s;cdInt=setInterval(function(){r--;document.getElementById("qTimer").textContent="· "+String(Math.floor(r/60)).padStart(2,"0")+":"+String(r%60).padStart(2,"0");if(r<=0)nextQuote()},1000)}
+window.addEventListener("load",function(){var q0=getMFQuote();qIdx=MF_QUOTES.indexOf(q0);if(qIdx<0)qIdx=0;showQ(MF_QUOTES[qIdx]);startCD(Math.ceil(msMFNextWindow()/1000))});
+var NOTES_KEY="fl_notes_v1";
+var sortNew=true;
+function loadNotes(){try{return JSON.parse(localStorage.getItem(NOTES_KEY)||"[]")}catch(e){return[]}}
+
+function fnAlert(msg, icon) {
+  document.getElementById('fnAlertIcon').textContent = icon || '⚠️';
+  document.getElementById('fnAlertMsg').textContent = msg;
+  document.getElementById('fnAlertOverlay').style.display = 'flex';
+}
+var _fnConfirmCb = null;
+function fnConfirm(msg, cb) {
+  document.getElementById('fnConfirmMsg').textContent = msg;
+  document.getElementById('fnConfirmOverlay').style.display = 'flex';
+  _fnConfirmCb = cb;
+}
+function fnConfirmOK()    { document.getElementById('fnConfirmOverlay').style.display='none'; if(_fnConfirmCb) _fnConfirmCb(); _fnConfirmCb=null; }
+function fnConfirmCancel(){ document.getElementById('fnConfirmOverlay').style.display='none'; _fnConfirmCb=null; }
+
+function saveNotes(arr){try{localStorage.setItem(NOTES_KEY,JSON.stringify(arr))}catch(e){fnAlert("Storage error: "+e.message,"⚠️")}}
+function updCC(){document.getElementById("cc").textContent=document.getElementById("nBody").value.length+" / 5000"}
+function saveNote(){
+  var h=document.getElementById("nHead").value.trim();
+  var b=document.getElementById("nBody").value.trim();
+  var cat=document.getElementById("nCat").value;
+  if(!h&&!b){fnAlert("Please add a heading or some content.");return}
+  var notes=loadNotes();
+  notes.unshift({id:Date.now(),heading:h||"Untitled",body:b,cat:cat,tags:[],pinned:false,created:new Date().toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}),updated:null});
+  saveNotes(notes);
+  document.getElementById("nHead").value="";
+  document.getElementById("nBody").value="";
+  document.getElementById("nCat").value="general";
+  document.getElementById("cc").textContent="0 / 5000";
+  renderNotes();
+}
+function deleteNote(id){fnConfirm("Delete this note?",function(){_deleteNoteConfirmed(id);});return;}
+function _deleteNoteConfirmed(id){var notes=loadNotes();saveNotes(notes.filter(function(n){return n.id!==id}));renderNotes()}
+function togglePin(id){var notes=loadNotes();var n=notes.find(function(x){return x.id===id});if(n)n.pinned=!n.pinned;saveNotes(notes);renderNotes()}
+function startEdit(id){var card=document.querySelector('.note-card[data-id="'+id+'"]');var notes=loadNotes();var note=notes.find(function(n){return n.id===id});if(!card||!note)return;card.classList.add("editing");card.querySelector(".nc-h").style.display="none";var hi=card.querySelector(".nc-hi");hi.style.display="block";hi.value=note.heading;card.querySelector(".nc-body").style.display="none";var bi=card.querySelector(".nc-bi");bi.style.display="block";bi.value=note.body;card.querySelector(".edit-save").style.display="inline";card.querySelector(".edit-btn").style.display="none"}
+function finishEdit(id){var card=document.querySelector('.note-card[data-id="'+id+'"]');var notes=loadNotes();var note=notes.find(function(n){return n.id===id});if(!card||!note)return;note.heading=card.querySelector(".nc-hi").value.trim()||"Untitled";note.body=card.querySelector(".nc-bi").value.trim();note.updated=new Date().toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"});saveNotes(notes);renderNotes()}
+function toggleSort(){sortNew=!sortNew;document.getElementById("sLbl").textContent=sortNew?"Newest":"Oldest";renderNotes()}
+function toggleExp(btn){var b=btn.closest(".note-card").querySelector(".nc-body");b.classList.toggle("exp");btn.textContent=b.classList.contains("exp")?"Show less":"Show more"}
+var CICONS={general:"📄",ideas:"💡",work:"💼",personal:"🌿",study:"📚",goals:"🎯"};
+function renderNotes(){
+  var search=(document.getElementById("srch").value||"").toLowerCase();
+  var catF=document.getElementById("fCat").value;
+  var notes=loadNotes();
+  var list=notes.slice();
+  if(catF)list=list.filter(function(n){return n.cat===catF});
+  if(search)list=list.filter(function(n){return n.heading.toLowerCase().includes(search)||n.body.toLowerCase().includes(search)});
+  list.sort(function(a,b){if(a.pinned&&!b.pinned)return -1;if(!a.pinned&&b.pinned)return 1;return sortNew?b.id-a.id:a.id-b.id});
+  document.getElementById("nbadge").textContent=notes.length+(notes.length===1?" note":" notes");
+  var grid=document.getElementById("nGrid");
+  if(!list.length){grid.innerHTML='<div class="n-empty">'+( search||catF?"No notes match your filter.":"No notes yet. Write your first one! ✍️")+"</div>";return}
+  grid.innerHTML=list.map(function(n){return'<div class="note-card'+( n.pinned?" pinned":"")+'" data-id="'+n.id+'">'+'<div class="nc-hdr">'+'<div class="nc-h">'+( n.pinned?"📌 ":"")+(CICONS[n.cat]||"📄")+" "+esc(n.heading)+"</div>"+'<input class="nc-hi" type="text"/>'+'<div class="nc-acts">'+'<button class="nc-btn nc-pin'+( n.pinned?" on":"")+'" onclick="togglePin('+n.id+')" title="'+( n.pinned?"Unpin":"Pin")+'">📌</button>'+'<button class="nc-btn edit-btn" onclick="startEdit('+n.id+')" title="Edit">✏️</button>'+'<button class="nc-btn dl" onclick="deleteNote('+n.id+')" title="Delete">✕</button>'+"</div></div>"+'<div class="nc-body">'+( esc(n.body)||'<em style="opacity:.4">No content</em>')+'</div>'+'<textarea class="nc-bi"></textarea>'+'<div class="nc-foot">'+'<span class="nc-date">'+( n.updated?"Updated "+n.updated:"Created "+n.created)+"</span>"+'<div class="nc-foota">'+'<button class="exp-btn" onclick="toggleExp(this)">Show more</button>'+'<button class="edit-save" onclick="finishEdit('+n.id+')">Save ✓</button>'+"</div></div></div>"}).join("")}
+function esc(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\n/g,"<br>")}
+renderNotes();
+</script>
+<script src="theme.js"></script>
+<script src="reminders.js"></script>
+
+<div id="fnAlertOverlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(4px)">
+  <div style="background:var(--card,#1a1e28);border:1px solid var(--border,#2a2e3d);border-radius:20px;padding:2rem 2.4rem;max-width:380px;width:90%;text-align:center;animation:fnAlIn .25s cubic-bezier(.34,1.56,.64,1)">
+    <div id="fnAlertIcon" style="font-size:2rem;margin-bottom:.7rem">⚠️</div>
+    <div id="fnAlertMsg" style="color:var(--text,#e8eaf2);font-size:.93rem;line-height:1.6;margin-bottom:1.5rem"></div>
+    <button onclick="document.getElementById('fnAlertOverlay').style.display='none'" style="background:var(--accent,#c8f064);color:#0d0f14;border:none;border-radius:10px;padding:.65rem 2rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer">OK</button>
+  </div>
+</div>
+<style>@keyframes fnAlIn{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}</style>
+
+<div id="fnConfirmOverlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(4px)">
+  <div style="background:var(--card,#1a1e28);border:1px solid var(--border,#2a2e3d);border-radius:20px;padding:2rem 2.4rem;max-width:380px;width:90%;text-align:center;animation:fnAlIn .25s cubic-bezier(.34,1.56,.64,1)">
+    <div style="font-size:2rem;margin-bottom:.7rem">🗑️</div>
+    <div id="fnConfirmMsg" style="color:var(--text,#e8eaf2);font-size:.93rem;line-height:1.6;margin-bottom:1.5rem"></div>
+    <div style="display:flex;gap:.7rem;justify-content:center">
+      <button onclick="fnConfirmCancel()" style="padding:.6rem 1.3rem;background:transparent;border:1px solid var(--border,#2a2e3d);border-radius:10px;color:var(--muted,#7a7f96);font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer">Cancel</button>
+      <button onclick="fnConfirmOK()" style="padding:.6rem 1.4rem;background:#f06464;border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer">Delete</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

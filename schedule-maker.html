@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Schedule Maker — FocuslyNow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0f14;--card:#1a1e28;--surface:#111318;--accent:#64d4f0;--accent2:#c8f064;--accent3:#f0a064;--accent4:#a78bfa;--text:#e8eaf2;--muted:#7a7f96;--border:#2a2e3d}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+/* NAV */
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(13,15,20,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:9999;gap:.6rem;overflow:visible}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:.7rem;list-style:none;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.nav-links>li>a{color:var(--muted);text-decoration:none;font-size:.83rem;font-weight:500;transition:color .18s}
+.nav-links>li>a:hover{color:var(--text)}
+.nav-sep{width:1px;height:14px;background:var(--border);margin:0 .1rem;display:inline-block;vertical-align:middle}
+.jbtn{border-radius:7px;padding:.3rem .72rem;font-size:.71rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .18s;white-space:nowrap;display:inline-flex;align-items:center;gap:.25rem}
+.jbtn.g{background:rgba(200,240,100,.08);border:1px solid rgba(200,240,100,.22);color:#c8f064}.jbtn.g:hover{background:rgba(200,240,100,.18)}
+.jbtn.b{background:rgba(100,212,240,.08);border:1px solid rgba(100,212,240,.22);color:#64d4f0}.jbtn.b:hover{background:rgba(100,212,240,.18)}
+.jbtn.o{background:rgba(240,160,100,.08);border:1px solid rgba(240,160,100,.22);color:#f0a064}.jbtn.o:hover{background:rgba(240,160,100,.18)}
+.jbtn.p{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.22);color:#a78bfa}.jbtn.p:hover{background:rgba(167,139,250,.18)}
+
+/* PAGE HEADER */
+.page-header{padding:3rem 2rem 1.2rem;text-align:center}
+.page-tag{display:inline-block;background:rgba(100,212,240,.1);border:1px solid rgba(100,212,240,.3);color:var(--accent);font-size:.72rem;letter-spacing:2px;text-transform:uppercase;padding:.3rem .9rem;border-radius:100px;margin-bottom:.9rem}
+.page-header h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.8rem);font-weight:900;letter-spacing:-1.5px}
+.page-header p{color:var(--muted);margin-top:.6rem;font-size:.93rem}
+
+/* LAYOUT */
+.main-wrap{max-width:1300px;margin:0 auto;padding:0 2rem 5rem;display:grid;grid-template-columns:1fr 320px;gap:1.8rem;align-items:start}
+@media(max-width:980px){.main-wrap{grid-template-columns:1fr}}
+
+/* PANEL */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.6rem;margin-bottom:1.4rem}
+.ptitle{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:1.2rem;display:flex;align-items:center;gap:.5rem}
+.add-row{display:grid;grid-template-columns:2fr auto auto 1fr 38px;gap:.7rem;align-items:end}
+@media(max-width:700px){.add-row{grid-template-columns:1fr 1fr}}
+.field{display:flex;flex-direction:column;gap:.28rem}
+.field label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:500}
+.finput{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.68rem .85rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:100%}
+.finput:focus{border-color:var(--accent)}.finput::placeholder{color:var(--muted)}
+.tr-field{display:flex;flex-direction:column;gap:.28rem}
+.tr-field label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:500}
+.tr-row{display:flex;align-items:center;gap:.3rem;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.46rem .7rem;transition:border-color .2s}
+.tr-row:focus-within{border-color:var(--accent)}
+.tr-row input[type=time]{background:transparent;border:none;outline:none;color:var(--text);font-family:'DM Mono',monospace;font-size:.9rem;width:80px;cursor:pointer}
+.color-field{display:flex;flex-direction:column;gap:.28rem}
+.color-field label{font-size:.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;font-weight:500}
+.cpick{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);cursor:pointer;padding:2px;background:var(--surface)}
+.add-btn{width:38px;height:38px;background:var(--accent);color:#0d0f14;border:none;border-radius:9px;font-size:1.2rem;cursor:pointer;transition:opacity .2s,transform .18s;display:flex;align-items:center;justify-content:center;align-self:flex-end;flex-shrink:0}
+.add-btn:hover{opacity:.85;transform:translateY(-2px)}
+.hint{font-size:.7rem;color:var(--muted);margin-top:.65rem}
+.hint.err{color:#f06464}
+
+/* DATE NAV */
+.date-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem;gap:.7rem;overflow:visible}
+.date-nav h2{font-family:'Playfair Display',serif;font-size:1.3rem}
+.date-btns{display:flex;gap:.4rem}
+.dbtn{background:var(--card);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:.42rem .88rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;transition:all .2s}
+.dbtn:hover,.dbtn.active{border-color:var(--accent);color:var(--accent)}
+
+/* TIMELINE */
+.tl-outer{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden}
+.timeline{position:relative}
+.timeline::before{content:'';position:absolute;left:60px;top:0;bottom:0;width:1px;background:var(--border);z-index:1}
+.hour-block{display:flex;min-height:54px;position:relative}
+.hour-block:not(:last-child){border-bottom:1px solid rgba(42,46,61,.5)}
+.hour-label{width:60px;flex-shrink:0;padding:.35rem .6rem 0;font-family:'DM Mono',monospace;font-size:.68rem;color:var(--muted);text-align:right;padding-right:.85rem;line-height:1}
+.hour-tasks{flex:1;padding:.3rem .5rem;position:relative;display:flex;flex-wrap:wrap;gap:.3rem;align-items:flex-start}
+.t-block{display:flex;align-items:flex-start;gap:.45rem;background:var(--surface);border-left:3px solid;border-radius:8px;padding:.42rem .65rem;font-size:.8rem;flex:1;min-width:180px;position:relative;animation:taskIn .22s ease both}
+@keyframes taskIn{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+.t-info{flex:1;min-width:0}
+.t-name{font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-time{font-size:.7rem;color:var(--muted);margin-top:2px;font-family:'DM Mono',monospace}
+.t-cat{font-size:.68rem;margin-top:2px}
+.t-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;padding:.15rem .3rem;border-radius:5px;transition:all .18s;opacity:.5;flex-shrink:0;margin-top:1px}
+.t-del:hover{opacity:1;color:#f06464}
+.t-cont{padding:.2rem .5rem .2rem 8px;font-size:.72rem;border-left:2px dashed;border-radius:4px;margin:.2rem 0;opacity:.6}
+.hour-now{position:absolute;left:0;right:0;height:2px;background:var(--accent2);z-index:10;pointer-events:none}
+.hour-now::before{content:'';position:absolute;left:3px;top:-4px;width:9px;height:9px;border-radius:50%;background:var(--accent2)}
+
+/* SUMMARY */
+.sum-bar{display:flex;gap:.5rem;flex-wrap:wrap;padding:1rem 1.4rem;border-top:1px solid var(--border)}
+.s-chip{background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:.25rem .75rem;font-size:.75rem;color:var(--muted)}
+.s-chip .v{color:var(--text);font-weight:700}.s-chip .dv{color:var(--accent3);font-weight:700}
+
+/* TEMPLATES */
+.tpl-panel{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;margin-bottom:1.4rem}
+.tpl-hdr{padding:1.1rem 1.5rem;border-bottom:1px solid var(--border)}
+.tpl-hdr h3{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700}
+.tpl-hdr p{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+.tpl-save-row{padding:1rem 1.5rem;border-bottom:1px solid var(--border);display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.tpl-name-inp{flex:1;min-width:100px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.55rem .8rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;outline:none;transition:border-color .2s}
+.tpl-name-inp:focus{border-color:var(--accent)}.tpl-name-inp::placeholder{color:var(--muted)}
+.tpl-save-btn{padding:.55rem 1rem;background:var(--accent2);color:#0d0f14;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.82rem;cursor:pointer;transition:opacity .2s;white-space:nowrap}
+.tpl-save-btn:hover{opacity:.85}
+.tpl-list{padding:.7rem .8rem;max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem}
+.tpl-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:.7rem 1rem;display:flex;align-items:center;gap:.6rem;transition:border-color .2s}
+.tpl-card:hover{border-color:rgba(100,212,240,.3)}
+.tpl-card-info{flex:1;min-width:0}
+.tpl-card-name{font-size:.86rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tpl-card-meta{font-size:.68rem;color:var(--muted);margin-top:1px}
+.tpl-actions{display:flex;gap:.3rem;flex-shrink:0}
+.tpl-apply-btn{background:rgba(100,212,240,.1);border:1px solid rgba(100,212,240,.22);color:var(--accent);border-radius:7px;padding:.22rem .55rem;font-size:.7rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .18s}
+.tpl-apply-btn:hover{background:rgba(100,212,240,.22)}
+.tpl-del-btn{width:22px;height:22px;background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);cursor:pointer;font-size:.65rem;transition:all .18s;display:flex;align-items:center;justify-content:center}
+.tpl-del-btn:hover{background:rgba(240,100,100,.1);border-color:#f06464;color:#f06464}
+.tpl-empty{padding:1.2rem;text-align:center;color:var(--muted);font-size:.82rem}
+
+/* MINI TODO SIDEBAR */
+.mini-todo-panel{background:var(--card);border:1px solid rgba(167,139,250,.3);border-radius:18px;overflow:hidden;position:sticky;top:80px}
+.mtp-hdr{padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.4rem}
+.mtp-hdr h3{font-family:'Playfair Display',serif;font-size:.98rem;font-weight:700;display:flex;align-items:center;gap:.4rem;flex-wrap:wrap}
+.mtp-link{font-size:.7rem;color:var(--accent4);text-decoration:none;border-bottom:1px solid rgba(167,139,250,.3);transition:color .2s;flex-shrink:0}
+.mtp-link:hover{color:var(--text)}
+.mtp-date-badge{font-size:.66rem;background:rgba(100,212,240,.1);border:1px solid rgba(100,212,240,.25);color:var(--accent);border-radius:100px;padding:.15rem .5rem;margin-left:.3rem;font-family:'DM Sans',sans-serif;font-weight:600;white-space:nowrap}
+.mtp-add{padding:.9rem 1.2rem;border-bottom:1px solid var(--border);display:flex;gap:.5rem;align-items:center}
+.mtp-input{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.5rem .75rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;transition:border-color .2s}
+.mtp-input:focus{border-color:var(--accent4)}.mtp-input::placeholder{color:var(--muted)}
+.mtp-add-btn{width:30px;height:30px;background:var(--accent4);border:none;border-radius:7px;color:#0d0f14;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:opacity .2s;font-weight:700;flex-shrink:0}
+.mtp-add-btn:hover{opacity:.8}
+.mtp-list{max-height:340px;overflow-y:auto;padding:.5rem .8rem}
+.mtp-list::-webkit-scrollbar{width:3px}
+.mtp-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.mtp-item{display:flex;align-items:center;gap:.55rem;padding:.48rem .3rem;border-bottom:1px solid rgba(42,46,61,.5);cursor:pointer;transition:background .15s;border-radius:7px}
+.mtp-item:hover{background:rgba(167,139,250,.07)}
+.mtp-item:last-child{border-bottom:none}
+.mtp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.mtp-dot.p1{background:#f06464}.mtp-dot.p2{background:#f0a064}.mtp-dot.p3{background:#a3e635}.mtp-dot.p4{background:#94a3b8}
+.mtp-text{font-size:.82rem;flex:1;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mtp-recur{font-size:.6rem;color:var(--accent2);flex-shrink:0}
+.mtp-use-btn{background:rgba(100,212,240,.1);border:1px solid rgba(100,212,240,.2);color:#64d4f0;border-radius:5px;padding:.18rem .5rem;font-size:.65rem;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap;transition:all .2s;flex-shrink:0}
+.mtp-use-btn:hover{background:rgba(100,212,240,.2)}
+.mtp-empty{padding:1.2rem;text-align:center;color:var(--muted);font-size:.8rem;line-height:1.5}
+.mtp-footer{padding:.75rem 1.2rem;border-top:1px solid var(--border);font-size:.72rem;color:var(--muted);text-align:center;line-height:1.4}
+
+footer{padding:2rem 2.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-logo{font-family:'Playfair Display',serif;font-weight:900;color:var(--accent);font-size:1.1rem}
+footer p{color:var(--muted);font-size:.78rem}
+@keyframes fmIn{from{opacity:0;transform:scale(.88)}to{opacity:1;transform:scale(1)}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">FocuslyNow</a>
+  <ul class="nav-links">
+    <li><a href="habit-tracker.html" class="jbtn g">🌿 Habits</a></li>
+    <li><a href="schedule-maker.html" class="jbtn b">📅 Schedule</a></li>
+    <li><a href="notes.html" class="jbtn o">📝 Notes</a></li>
+    <li><a href="focus-timer.html" class="jbtn o">⏱ Timer</a></li>
+    <li><a href="todo.html" class="jbtn p">🎯 To-Do</a></li>
+    <li><a href="sleep-tracker.html" class="jbtn b">🌙 Sleep</a></li>
+    <li><a href="water-tracker.html" class="jbtn b">💧 Water</a></li>
+    <li><a href="goal-tracker.html" class="jbtn g">🏆 Goals</a></li>
+    <li class="nav-more-wrap">
+      <button class="jbtn more-btn" onclick="FN_toggleMore()">⋯ More</button>
+      <div class="nav-more-dropdown" id="moreNavDrop">
+        <a href="reminders.html">🔔 Reminders</a>
+        <a href="weekly-review.html">📊 Report</a>
+        <a href="data.html">💾 Data Backup</a>
+      </div>
+    </li>
+    <li><button class="fn-theme-btn" onclick="FN_toggleTheme()">☀</button></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <div class="page-tag">📅 Schedule Maker</div>
+  <h1>Plan Your Day</h1>
+  <p>Time-block your schedule — your To-Do list syncs with whichever date you're viewing.</p>
+</div>
+
+<div class="main-wrap">
+  <!-- LEFT: SCHEDULE -->
+  <div>
+    <!-- ADD PANEL -->
+    <div class="panel">
+      <div class="ptitle">📌 Add Time Block</div>
+      <div class="add-row">
+        <div class="field">
+          <label>Task Name</label>
+          <input class="finput" id="tName" placeholder="e.g. Deep work session" onkeydown="if(event.key==='Enter')addScheduleTask()"/>
+        </div>
+        <div class="tr-field">
+          <label>Start</label>
+          <div class="tr-row"><input type="time" id="tStart" value="09:00" onchange="autoAdvanceEnd()"/></div>
+        </div>
+        <div class="tr-field">
+          <label>End</label>
+          <div class="tr-row"><input type="time" id="tEnd" value="10:00"/></div>
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <input class="finput" id="tCat" placeholder="Work, Study, Health…"/>
+        </div>
+        <div class="color-field">
+          <label>Color</label>
+          <input type="color" class="cpick" id="tColor" value="#64d4f0"/>
+        </div>
+        <button class="add-btn" onclick="addScheduleTask()" title="Add">+</button>
+      </div>
+      <div class="hint" id="addHint">Press Enter or click + to add a time block.</div>
+    </div>
+
+    <!-- DATE NAV -->
+    <div class="date-nav">
+      <h2 id="dateLabel">—</h2>
+      <div class="date-btns">
+        <button class="dbtn" onclick="shiftDay(-1)">← Prev</button>
+        <button class="dbtn active" onclick="goToday()">Today</button>
+        <button class="dbtn" onclick="shiftDay(1)">Next →</button>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="tl-outer">
+      <div class="timeline" id="timeline"></div>
+      <div class="sum-bar" id="sumBar"></div>
+    </div>
+
+    <!-- TEMPLATES -->
+    <div class="tpl-panel" style="margin-top:1.4rem">
+      <div class="tpl-hdr">
+        <h3>📋 Schedule Templates</h3>
+        <p>Save today's schedule as a reusable template.</p>
+      </div>
+      <div class="tpl-save-row">
+        <input class="tpl-name-inp" id="tplNameInp" placeholder="Template name…" onkeydown="if(event.key==='Enter')saveTemplate()"/>
+        <button class="tpl-save-btn" onclick="saveTemplate()">💾 Save Today's Schedule</button>
+      </div>
+      <div class="tpl-list" id="tplList"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT SIDEBAR: MINI TODO -->
+  <div>
+    <div class="mini-todo-panel">
+      <div class="mtp-hdr">
+        <h3 id="mtpTitle">🎯 Today's Tasks</h3>
+        <a href="todo.html" class="mtp-link">Open full →</a>
+      </div>
+      <div class="mtp-add">
+        <input class="mtp-input" id="mtpInput" placeholder="Quick-add task for this date…" onkeydown="if(event.key==='Enter')mtpAdd()"/>
+        <button class="mtp-add-btn" onclick="mtpAdd()">+</button>
+      </div>
+      <div class="mtp-list" id="mtpList"></div>
+      <div class="mtp-footer">Click "Use" to copy a task name into the schedule form above.</div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">FocuslyNow</div>
+  <p>&copy; 2026 FocuslyNow. All rights reserved.</p>
+</footer>
+
+<!-- INFO MODAL -->
+<div id="fModal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)">
+  <div style="background:#1a1e28;border:1px solid #2a2e3d;border-radius:20px;padding:2.2rem 2.5rem;max-width:380px;width:90%;text-align:center;animation:fmIn .22s cubic-bezier(.34,1.56,.64,1) both">
+    <div id="fModalIcon" style="font-size:2.2rem;margin-bottom:.8rem"></div>
+    <div id="fModalMsg" style="color:#e8eaf2;font-size:.97rem;line-height:1.6;margin-bottom:1.6rem"></div>
+    <button onclick="closeFModal()" style="background:#c8f064;color:#0d0f14;border:none;border-radius:10px;padding:.7rem 2rem;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer">Got it</button>
+  </div>
+</div>
+
+<!-- TEMPLATE DELETE CONFIRM MODAL -->
+<div id="tplConfirmModal" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,.6);backdrop-filter:blur(4px)">
+  <div style="background:#1a1e28;border:1px solid #2a2e3d;border-radius:20px;padding:2.2rem 2.5rem;max-width:380px;width:90%;text-align:center;animation:fmIn .22s cubic-bezier(.34,1.56,.64,1) both">
+    <div style="font-size:2.2rem;margin-bottom:.8rem">🗑️</div>
+    <div style="font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:900;color:#e8eaf2;margin-bottom:.6rem">Delete Template?</div>
+    <div style="color:#7a7f96;font-size:.9rem;line-height:1.6;margin-bottom:1.5rem">Remove <strong id="tplConfirmName" style="color:#e8eaf2">"template"</strong>? This cannot be undone.</div>
+    <div style="display:flex;gap:.7rem;justify-content:center">
+      <button onclick="closeTplConfirm()" style="padding:.65rem 1.3rem;background:transparent;border:1px solid #2a2e3d;border-radius:10px;color:#7a7f96;font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer;transition:all .2s">Cancel</button>
+      <button onclick="confirmTplDelete()" style="padding:.65rem 1.3rem;background:#f06464;border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:opacity .2s">Delete</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ─── STORAGE KEYS ─── */
+var SCHED_KEY = 'fn_schedule_v2';
+var TPL_KEY   = 'fn_sched_tpl_v2';
+var TODO_KEY  = 'fn_todos_v4';   // ← FIXED: was fn_todos_v3 (key mismatch bug)
+
+var currentDate = new Date();
+currentDate.setHours(0,0,0,0);
+
+/* ─── UTILS ─── */
+function dateKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function todayKey(){ var t=new Date();t.setHours(0,0,0,0);return dateKey(t); }
+function parseKey(k){ var p=k.split('-');return new Date(+p[0],+p[1]-1,+p[2]); }
+function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function toMins(s){var p=s.split(':');return +p[0]*60+ +p[1];}
+function minsToStr(m){return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');}
+function durLabel(s,e){var d=toMins(e)-toMins(s);if(d<0)d+=1440;var h=Math.floor(d/60),m=d%60;return h&&m?h+'h '+m+'m':h?h+'h':m+'m';}
+
+/* ─── STORAGE ─── */
+function loadAll(){try{return JSON.parse(localStorage.getItem(SCHED_KEY)||'{}');}catch(e){return {};}}
+function saveAll(data){localStorage.setItem(SCHED_KEY,JSON.stringify(data));}
+function loadTemplates(){try{return JSON.parse(localStorage.getItem(TPL_KEY)||'[]');}catch(e){return [];}}
+function saveTemplates(t){localStorage.setItem(TPL_KEY,JSON.stringify(t));}
+function loadTodos(){try{return JSON.parse(localStorage.getItem(TODO_KEY)||'[]');}catch(e){return [];}}
+function saveTodos(t){localStorage.setItem(TODO_KEY,JSON.stringify(t));}
+
+/* ─── TIME HELPERS ─── */
+function autoAdvanceEnd(){
+  var start=document.getElementById('tStart').value;
+  if(!start)return;
+  document.getElementById('tEnd').value=minsToStr((toMins(start)+60)%1440);
+}
+
+/* ─── RECURRENCE LOGIC (mirrors todo.html) ─── */
+function taskAppearsOnDate(t, dateObj){
+  var dk  = dateKey(dateObj);
+  var dow = dateObj.getDay();
+  var taskStart;
+  try { taskStart = parseKey(t.scheduledFor||dk); taskStart.setHours(0,0,0,0); }
+  catch(e){ taskStart = new Date(0); }
+  var checkDate = new Date(dateObj); checkDate.setHours(0,0,0,0);
+
+  if(!t.recur || t.recur==='none'){
+    return t.scheduledFor===dk || t.shownOn===dk || t.rolledTo===dk;
+  }
+  if(checkDate < taskStart) return false;
+  switch(t.recur){
+    case 'daily':    return true;
+    case 'weekdays': return dow>=1 && dow<=5;
+    case 'weekends': return dow===0 || dow===6;
+    case 'weekly':   return !!(t.recurDays && t.recurDays.indexOf(dow)>=0);
+    case 'custom':   return !!(t.recurDays && t.recurDays.indexOf(dow)>=0);
+    default:         return false;
+  }
+}
+
+function isTaskDoneOnDate(t, dk){
+  if(!t.recur || t.recur==='none') return !!t.done;
+  return !!(t.doneOnDates && t.doneOnDates[dk]);
+}
+
+function isTaskSkippedOnDate(t, dk){
+  return !!(t.skippedOnDates && t.skippedOnDates[dk]);
+}
+
+/* ─── ADD SCHEDULE TASK ─── */
+function addScheduleTask(){
+  var name  = document.getElementById('tName').value.trim();
+  var start = document.getElementById('tStart').value;
+  var end   = document.getElementById('tEnd').value;
+  var cat   = document.getElementById('tCat').value.trim()||'General';
+  var color = document.getElementById('tColor').value;
+  if(!name){ showAlert('Please enter a task name.','📅'); return; }
+  if(!start||!end){ showAlert('Please set start and end times.','⏱'); return; }
+  if(toMins(end)<=toMins(start)){ showAlert('End time must be after start time.','⏱'); return; }
+
+  var data = loadAll();
+  var dk   = dateKey(currentDate);
+  if(!data[dk]) data[dk]=[];
+  var overlap = data[dk].some(function(t){ return toMins(t.start)<toMins(end)&&toMins(t.end)>toMins(start); });
+  if(overlap){
+    document.getElementById('addHint').textContent='⚠️ Time overlaps with an existing block!';
+    document.getElementById('addHint').className='hint err';
+    return;
+  }
+  data[dk].push({id:Date.now(),name:name,start:start,end:end,cat:cat,color:color});
+  data[dk].sort(function(a,b){return toMins(a.start)-toMins(b.start);});
+  saveAll(data);
+  document.getElementById('tName').value='';
+
+  var endMins = toMins(end);
+  document.getElementById('tStart').value = minsToStr(endMins%1440);
+  document.getElementById('tEnd').value   = minsToStr((endMins+60)%1440);
+
+  document.getElementById('addHint').textContent='✅ Block added! Times advanced to next slot.';
+  document.getElementById('addHint').className='hint';
+  setTimeout(function(){
+    document.getElementById('addHint').textContent='Press Enter or click + to add a time block.';
+    document.getElementById('addHint').className='hint';
+  },2200);
+  document.getElementById('tName').focus();
+  render();
+}
+
+function addTask(n,s,e,c,col){
+  var data=loadAll();var dk=dateKey(currentDate);if(!data[dk])data[dk]=[];
+  var ov=data[dk].some(function(t){return toMins(t.start)<toMins(e)&&toMins(t.end)>toMins(s);});
+  if(ov)return false;
+  data[dk].push({id:Date.now(),name:n,start:s,end:e,cat:c||'General',color:col||'#64d4f0'});
+  data[dk].sort(function(a,b){return toMins(a.start)-toMins(b.start);});
+  saveAll(data);return true;
+}
+
+function deleteTask(id){
+  var data=loadAll();var dk=dateKey(currentDate);
+  data[dk]=(data[dk]||[]).filter(function(t){return t.id!==id;});
+  saveAll(data);render();
+}
+
+/* ─── DATE NAV ─── */
+function shiftDay(n){
+  currentDate=new Date(currentDate.getTime()+n*86400000);
+  render();
+  renderMiniTodo();
+}
+function goToday(){
+  currentDate=new Date();currentDate.setHours(0,0,0,0);
+  render();
+  renderMiniTodo();
+}
+
+/* ─── RENDER SCHEDULE ─── */
+function render(){
+  var dk = dateKey(currentDate);
+  var now = new Date();
+  var isToday = dk===todayKey();
+  var tasks = (loadAll()[dk]||[]).slice();
+  tasks.sort(function(a,b){return toMins(a.start)-toMins(b.start);});
+
+  document.getElementById('dateLabel').textContent =
+    currentDate.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  var html='';
+  for(var h=0;h<24;h++){
+    var hMin=h*60;
+    var matching  = tasks.filter(function(t){return toMins(t.start)>=hMin&&toMins(t.start)<hMin+60;});
+    var continuing= tasks.filter(function(t){return toMins(t.start)<hMin&&toMins(t.end)>hMin;});
+    var nowLine='';
+    if(isToday&&now.getHours()===h){
+      var pct=((now.getMinutes()/60)*100).toFixed(1);
+      nowLine='<div class="hour-now" style="top:'+pct+'%"></div>';
+    }
+    html+='<div class="hour-block">'
+      +'<div class="hour-label">'+String(h).padStart(2,'0')+':00</div>'
+      +'<div class="hour-tasks">'+nowLine;
+    matching.forEach(function(t){
+      html+='<div class="t-block" style="border-color:'+t.color+';background:'+t.color+'14">'
+        +'<div class="t-info">'
+        +'<div class="t-name">'+esc(t.name)+'</div>'
+        +'<div class="t-time">'+t.start+' → '+t.end+' <span style="opacity:.55">('+durLabel(t.start,t.end)+')</span></div>'
+        +'<div class="t-cat" style="color:'+t.color+'">'+esc(t.cat)+'</div></div>'
+        +'<button class="t-del" onclick="deleteTask('+t.id+')" title="Remove">✕</button></div>';
+    });
+    continuing.forEach(function(t){
+      html+='<div class="t-cont" style="color:'+t.color+';border-color:'+t.color+'">↳ '+esc(t.name)+' continues → '+t.end+'</div>';
+    });
+    html+='</div></div>';
+  }
+  document.getElementById('timeline').innerHTML=html;
+  renderSum(tasks);
+}
+
+function renderSum(tasks){
+  var el=document.getElementById('sumBar');
+  if(!tasks.length){el.innerHTML='<div class="s-chip">No tasks yet — add one above!</div>';return;}
+  var tot=0;tasks.forEach(function(t){var d=toMins(t.end)-toMins(t.start);if(d<0)d+=1440;tot+=d;});
+  var th=Math.floor(tot/60),tm=tot%60,ds=th&&tm?th+'h '+tm+'m':th?th+'h':tm+'m';
+  var cats={};tasks.forEach(function(t){cats[t.cat]=(cats[t.cat]||0)+1;});
+  var h='<div class="s-chip"><span class="v">'+tasks.length+'</span> block'+(tasks.length!==1?'s':'')+'</div>';
+  h+='<div class="s-chip">⏱ <span class="dv">'+ds+'</span> planned</div>';
+  Object.keys(cats).forEach(function(c){h+='<div class="s-chip">'+esc(c)+'</div>';});
+  el.innerHTML=h;
+}
+
+/* ─── TEMPLATES ─── */
+var tplPendingDeleteId = null;
+
+function saveTemplate(){
+  var name=document.getElementById('tplNameInp').value.trim();
+  if(!name){showAlert('Please enter a template name.','📅');return;}
+  var tasks=loadAll()[dateKey(currentDate)]||[];
+  if(!tasks.length){showAlert("There are no blocks on this day's schedule to save.",'📅');return;}
+  var stripped=tasks.map(function(t){return{name:t.name,start:t.start,end:t.end,cat:t.cat,color:t.color};});
+  var templates=loadTemplates();
+  var existing=templates.findIndex(function(t){return t.name.toLowerCase()===name.toLowerCase();});
+  if(existing>=0){
+    templates[existing]={name:name,tasks:stripped,saved:new Date().toLocaleDateString(),id:templates[existing].id};
+  } else {
+    templates.push({id:Date.now(),name:name,tasks:stripped,saved:new Date().toLocaleDateString()});
+  }
+  saveTemplates(templates);
+  document.getElementById('tplNameInp').value='';
+  renderTemplates();
+  showAlert('✅ Template "'+name+'" saved with '+stripped.length+' blocks!','✅');
+}
+
+function applyTemplate(id){
+  var t=loadTemplates().find(function(t){return t.id===id;});
+  if(!t)return;
+  var added=0,skipped=0;
+  t.tasks.forEach(function(tk){var ok=addTask(tk.name,tk.start,tk.end,tk.cat,tk.color);if(ok!==false)added++;else skipped++;});
+  render();
+  showAlert('✅ Added '+added+' block'+(added!==1?'s':'')+(skipped?' ('+skipped+' skipped — overlaps)':'')+'.','✅');
+}
+
+function deleteTemplate(id){
+  var t=loadTemplates().find(function(x){return x.id===id;});
+  if(!t) return;
+  tplPendingDeleteId=id;
+  document.getElementById('tplConfirmName').textContent='"'+t.name+'"';
+  document.getElementById('tplConfirmModal').style.display='flex';
+}
+
+function confirmTplDelete(){
+  if(tplPendingDeleteId!==null){
+    saveTemplates(loadTemplates().filter(function(t){return t.id!==tplPendingDeleteId;}));
+    renderTemplates();
+    tplPendingDeleteId=null;
+  }
+  closeTplConfirm();
+}
+
+function closeTplConfirm(){
+  tplPendingDeleteId=null;
+  document.getElementById('tplConfirmModal').style.display='none';
+}
+
+document.getElementById('tplConfirmModal').addEventListener('click',function(e){
+  if(e.target===this) closeTplConfirm();
+});
+
+function renderTemplates(){
+  var templates=loadTemplates();
+  var el=document.getElementById('tplList');
+  if(!templates.length){
+    el.innerHTML='<div class="tpl-empty">No templates yet.<br>Build a schedule and save it.</div>';
+    return;
+  }
+  el.innerHTML=templates.map(function(t){
+    return '<div class="tpl-card">'
+      +'<div class="tpl-card-info"><div class="tpl-card-name">'+esc(t.name)+'</div>'
+      +'<div class="tpl-card-meta">'+t.tasks.length+' block'+(t.tasks.length!==1?'s':'')+' · '+t.saved+'</div></div>'
+      +'<div class="tpl-actions">'
+      +'<button class="tpl-apply-btn" onclick="applyTemplate('+t.id+')">▶ Apply</button>'
+      +'<button class="tpl-del-btn"   onclick="deleteTemplate('+t.id+')" title="Delete">✕</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+/* ─── MINI TODO ─── */
+function mtpAdd(){
+  var text=document.getElementById('mtpInput').value.trim();
+  if(!text)return;
+  var todos=loadTodos();
+  var dk=dateKey(currentDate);   // ← uses currentDate, not hardcoded today
+  todos.push({
+    id:Date.now()+Math.floor(Math.random()*9999),
+    text:text, priority:2, done:false, doneAt:null,
+    doneOnDates:{}, skippedOnDates:{},
+    createdAt:Date.now(), scheduledFor:dk, shownOn:dk,
+    rolledTo:null, originalDate:null, addedToday:false,
+    recur:'none', recurDays:[]
+  });
+  saveTodos(todos);
+  document.getElementById('mtpInput').value='';
+  renderMiniTodo();
+}
+
+function mtpUse(text){
+  document.getElementById('tName').value=text;
+  document.getElementById('tName').focus();
+  var inp=document.getElementById('tName');
+  inp.style.borderColor='var(--accent4)';
+  setTimeout(function(){inp.style.borderColor='';},1100);
+}
+
+function renderMiniTodo(){
+  var todos = loadTodos();
+  var dk    = dateKey(currentDate);
+  var tk    = todayKey();
+  var isToday = dk===tk;
+
+  // Filter tasks for currentDate using full recurrence logic
+  var list = todos.filter(function(t){
+    if(isTaskDoneOnDate(t, dk))    return false;
+    if(isTaskSkippedOnDate(t, dk)) return false;
+    return taskAppearsOnDate(t, currentDate);
+  });
+
+  // Sort by priority
+  list.sort(function(a,b){ return (a.priority||2)-(b.priority||2); });
+
+  // Update header title to reflect current date
+  var titleEl = document.getElementById('mtpTitle');
+  if(titleEl){
+    if(isToday){
+      titleEl.textContent = "🎯 Today's Tasks";
+    } else {
+      var label = currentDate.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+      titleEl.innerHTML = '🎯 Tasks <span class="mtp-date-badge">'+label+'</span>';
+    }
+  }
+
+  var el = document.getElementById('mtpList');
+  if(!list.length){
+    var noTaskMsg = isToday
+      ? 'No active tasks today.<br><a href="todo.html" style="color:var(--accent4)">Add some in To-Do →</a>'
+      : 'No tasks for this date.<br><a href="todo.html" style="color:var(--accent4)">Manage in To-Do →</a>';
+    el.innerHTML='<div class="mtp-empty">'+noTaskMsg+'</div>';
+    return;
+  }
+
+  el.innerHTML = list.map(function(t){
+    var isRecur = t.recur && t.recur!=='none';
+    return '<div class="mtp-item">'
+      +'<div class="mtp-dot p'+(t.priority||2)+'"></div>'
+      +'<span class="mtp-text" title="'+esc(t.text)+'">'+esc(t.text)+'</span>'
+      +(isRecur?'<span class="mtp-recur">🔁</span>':'')
+      +'<button class="mtp-use-btn" data-text="'+esc(t.text)+'" title="Copy to schedule form">Use</button>'
+      +'</div>';
+  }).join('');
+
+  el.querySelectorAll('.mtp-use-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){ mtpUse(this.getAttribute('data-text')); });
+  });
+}
+
+/* ─── MODALS ─── */
+function showAlert(msg,icon){
+  document.getElementById('fModalMsg').textContent=msg;
+  document.getElementById('fModalIcon').textContent=icon||'✦';
+  document.getElementById('fModal').style.display='flex';
+  document.addEventListener('keydown',fModalKey);
+}
+function closeFModal(){
+  document.getElementById('fModal').style.display='none';
+  document.removeEventListener('keydown',fModalKey);
+}
+function fModalKey(e){if(e.key==='Escape'||e.key==='Enter')closeFModal();}
+document.getElementById('fModal').addEventListener('click',function(e){if(e.target===this)closeFModal();});
+
+/* ─── INIT ─── */
+render();
+renderTemplates();
+renderMiniTodo();
+// Refresh mini-todo every 30s in case tasks were changed in another tab
+setInterval(renderMiniTodo, 30000);
+// Refresh schedule timeline every minute for the "now" indicator
+setInterval(function(){ if(dateKey(currentDate)===todayKey()) render(); }, 60000);
+</script>
+
+<script src="theme.js"></script>
+<script src="reminders.js"></script>
+</body>
+</html>

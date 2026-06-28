@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Reminders — FocuslyNow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0f14;--card:#1a1e28;--surface:#111318;--accent:#c8f064;--accent2:#64d4f0;--accent3:#f0a064;--accent4:#a78bfa;--text:#e8eaf2;--muted:#7a7f96;--border:#2a2e3d}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(13,15,20,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:9999;gap:.6rem;overflow:visible}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:.7rem;list-style:none;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;overflow:visible}
+.nav-links::-webkit-scrollbar{display:none}
+.jbtn{border-radius:7px;padding:.3rem .72rem;font-size:.71rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .18s;white-space:nowrap;display:inline-flex;align-items:center;gap:.25rem}
+.jbtn.g{background:rgba(200,240,100,.08);border:1px solid rgba(200,240,100,.22);color:#c8f064}.jbtn.g:hover{background:rgba(200,240,100,.18)}
+.jbtn.b{background:rgba(100,212,240,.08);border:1px solid rgba(100,212,240,.22);color:#64d4f0}.jbtn.b:hover{background:rgba(100,212,240,.18)}
+.jbtn.o{background:rgba(240,160,100,.08);border:1px solid rgba(240,160,100,.22);color:#f0a064}.jbtn.o:hover{background:rgba(240,160,100,.18)}
+.jbtn.p{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.22);color:#a78bfa}.jbtn.p:hover{background:rgba(167,139,250,.18)}
+/* HERO */
+.hero{padding:5rem 2rem 2.5rem;text-align:center;position:relative}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 30%,rgba(200,240,100,.06) 0%,transparent 70%);pointer-events:none}
+.hero-tag{display:inline-block;background:rgba(200,240,100,.1);border:1px solid rgba(200,240,100,.3);color:var(--accent);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;padding:.38rem 1.1rem;border-radius:100px;margin-bottom:1.3rem}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,5.5vw,4.5rem);font-weight:900;letter-spacing:-2px;margin-bottom:.8rem}
+.hero h1 span{color:var(--accent)}
+.hero p{color:var(--muted);font-size:1rem;max-width:480px;margin:0 auto 2rem;line-height:1.7}
+/* PERM BANNER */
+.perm-banner{max-width:700px;margin:0 auto 2rem;padding:0 2rem}
+.perm-inner{border-radius:18px;padding:1.4rem 1.7rem;display:flex;align-items:center;gap:1.2rem;flex-wrap:wrap}
+.perm-inner.granted{background:rgba(200,240,100,.09);border:1px solid rgba(200,240,100,.3)}
+.perm-inner.denied {background:rgba(240,100,100,.09);border:1px solid rgba(240,100,100,.28)}
+.perm-inner.default{background:rgba(100,212,240,.09);border:1px solid rgba(100,212,240,.28)}
+.perm-icon{font-size:1.9rem;flex-shrink:0}
+.perm-body{flex:1;min-width:160px}
+.perm-title{font-weight:700;font-size:.93rem;margin-bottom:.2rem}
+.perm-desc{color:var(--muted);font-size:.8rem;line-height:1.5}
+.perm-btn{padding:.58rem 1.2rem;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.83rem;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.perm-btn.ask{background:var(--accent);color:#0d0f14}.perm-btn.ask:hover{opacity:.85;transform:translateY(-1px)}
+.perm-btn.retest{background:rgba(100,212,240,.12);border:1px solid rgba(100,212,240,.3);color:var(--accent2)}.perm-btn.retest:hover{background:rgba(100,212,240,.22)}
+/* CONTENT */
+.content{max-width:700px;margin:0 auto;padding:0 2rem 6rem}
+/* INFO NOTE */
+.info-note{background:rgba(100,212,240,.06);border:1px solid rgba(100,212,240,.18);border-radius:14px;padding:1rem 1.3rem;display:flex;gap:.75rem;align-items:flex-start;margin-bottom:1.5rem}
+.info-note-icon{font-size:1rem;flex-shrink:0;margin-top:.1rem}
+.info-note p{color:var(--muted);font-size:.8rem;line-height:1.6}
+.info-note strong{color:var(--accent2)}
+/* TOGGLE CARDS */
+.toggle-card{background:var(--card);border:1px solid var(--border);border-radius:20px;margin-bottom:.9rem;overflow:hidden;transition:border-color .25s}
+.toggle-card.on{border-color:var(--tc-color)}
+.tc-head{padding:1.4rem 1.6rem;display:flex;align-items:center;gap:1.2rem}
+.tc-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.tc-body{flex:1;min-width:0}
+.tc-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;margin-bottom:.18rem}
+.tc-desc{color:var(--muted);font-size:.8rem;line-height:1.45}
+/* Toggle */
+.tog{position:relative;width:48px;height:27px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0;position:absolute}
+.tog-track{position:absolute;inset:0;background:var(--border);border-radius:27px;cursor:pointer;transition:background .22s}
+.tog-track::before{content:'';position:absolute;width:21px;height:21px;top:3px;left:3px;background:#fff;border-radius:50%;transition:transform .22s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tog input:checked ~ .tog-track{background:var(--tc-color,var(--accent))}
+.tog input:checked ~ .tog-track::before{transform:translateX(21px)}
+/* Expandable settings body */
+.tc-settings{border-top:1px solid var(--border);padding:1rem 1.6rem 1.3rem;display:none;animation:bodyIn .2s ease;background:var(--surface)}
+.toggle-card.on .tc-settings{display:block}
+@keyframes bodyIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.setting-row{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.5rem}
+.setting-row:last-child{margin-bottom:0}
+.setting-label{font-size:.78rem;color:var(--muted);white-space:nowrap}
+/* Interval pills */
+.pill-group{display:flex;gap:.35rem;flex-wrap:wrap}
+.int-pill{padding:.32rem .8rem;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:.75rem;font-weight:600;cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif}
+.int-pill.active,.int-pill:hover{border-color:var(--tc-color);color:var(--tc-color);background:rgba(100,100,100,.1)}
+/* Time input */
+.time-inp{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:.38rem .75rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;outline:none;transition:border-color .2s;width:110px}
+.time-inp:focus{border-color:var(--tc-color,var(--accent))}
+/* AUTO BLOCK */
+.auto-block{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:1.4rem 1.6rem;margin-bottom:.9rem}
+.auto-block-head{display:flex;align-items:center;gap:.9rem;margin-bottom:.9rem}
+.auto-block-icon{font-size:1.4rem}
+.auto-block-title{font-family:'Playfair Display',serif;font-size:.98rem;font-weight:700}
+.auto-block-sub{color:var(--muted);font-size:.76rem;margin-top:.1rem}
+.auto-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(138px,1fr));gap:.5rem}
+.auto-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:.6rem .85rem;display:flex;align-items:center;gap:.5rem;font-size:.78rem;font-weight:600}
+/* SAVED */
+.saved-badge{position:fixed;top:5rem;right:1.5rem;z-index:9000;background:rgba(200,240,100,.15);border:1px solid rgba(200,240,100,.38);color:var(--accent);border-radius:100px;padding:.32rem .9rem;font-size:.78rem;font-weight:700;opacity:0;transition:opacity .25s;pointer-events:none}
+footer{padding:2.5rem 3rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-logo{font-family:'Playfair Display',serif;font-weight:900;color:var(--accent);font-size:1.2rem}
+footer p{color:var(--muted);font-size:.82rem}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">FocuslyNow</a>
+  <ul class="nav-links">
+    <li><a href="habit-tracker.html" class="jbtn g">🌿 Habits</a></li>
+    <li><a href="schedule-maker.html" class="jbtn b">📅 Schedule</a></li>
+    <li><a href="notes.html" class="jbtn o">📝 Notes</a></li>
+    <li><a href="focus-timer.html" class="jbtn o">⏱ Timer</a></li>
+    <li><a href="todo.html" class="jbtn p">🎯 To-Do</a></li>
+    <li><a href="sleep-tracker.html" class="jbtn b">🌙 Sleep</a></li>
+    <li><a href="water-tracker.html" class="jbtn b">💧 Water</a></li>
+    <li><a href="goal-tracker.html" class="jbtn g">🏆 Goals</a></li>
+    <li class="nav-more-wrap">
+      <button class="jbtn more-btn" onclick="FN_toggleMore()">⋯ More</button>
+      <div class="nav-more-dropdown" id="moreNavDrop">
+        <a href="reminders.html">🔔 Reminders</a>
+        <a href="weekly-review.html">📊 Report</a>
+        <a href="data.html">💾 Data Backup</a>
+      </div>
+    </li>
+    <li><button class="fn-theme-btn" onclick="FN_toggleTheme()">☀</button></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">✦ Desktop Notifications</div>
+  <h1>Smart <span>Reminders</span></h1>
+  <p>Stay on track while you work. Notifications reach you even when FocuslyNow is in the background.</p>
+</div>
+
+<div class="perm-banner">
+  <div class="perm-inner default" id="permBanner">
+    <div class="perm-icon" id="permIcon">🔔</div>
+    <div class="perm-body">
+      <div class="perm-title" id="permTitle">Enable Desktop Notifications</div>
+      <div class="perm-desc" id="permDesc">Allow notifications so reminders reach you even when you are working in another app.</div>
+    </div>
+    <button class="perm-btn ask" id="permBtn" onclick="requestPerm()">Enable Notifications</button>
+  </div>
+</div>
+
+<div class="content">
+
+  <div class="info-note">
+    <div class="info-note-icon">💡</div>
+    <p>Keep FocuslyNow open in <strong>any background tab</strong> — notifications will reach you on your desktop while you work in other apps. <strong>Note:</strong> the tab must stay open; browser notifications require a running tab or a PWA installation.</p>
+  </div>
+
+  <!-- ── MOTIVATIONAL ── -->
+  <div class="toggle-card" id="tcMotivation" style="--tc-color:#c8f064">
+    <div class="tc-head">
+      <div class="tc-icon" style="background:rgba(200,240,100,.1)">✦</div>
+      <div class="tc-body">
+        <div class="tc-name">Motivational Messages</div>
+        <div class="tc-desc">Encouraging nudges throughout your day to keep you focused and driven.</div>
+      </div>
+      <label class="tog">
+        <input type="checkbox" id="togMotivation" onchange="saveToggle('motivation',this.checked)">
+        <span class="tog-track"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ── WATER REMINDER ── -->
+  <div class="toggle-card" id="tcWater" style="--tc-color:#64d4f0">
+    <div class="tc-head">
+      <div class="tc-icon" style="background:rgba(100,212,240,.1)">💧</div>
+      <div class="tc-body">
+        <div class="tc-name">Water Reminder</div>
+        <div class="tc-desc">Stay hydrated. Get a reminder to drink water at your chosen interval.</div>
+      </div>
+      <label class="tog">
+        <input type="checkbox" id="togWater" onchange="saveToggle('water',this.checked)">
+        <span class="tog-track"></span>
+      </label>
+    </div>
+    <div class="tc-settings">
+      <div class="setting-row">
+        <span class="setting-label">Remind me every</span>
+        <div class="pill-group" id="waterPills">
+          <button class="int-pill" data-mins="30"  onclick="setWaterInterval(30)">30 min</button>
+          <button class="int-pill" data-mins="45"  onclick="setWaterInterval(45)">45 min</button>
+          <button class="int-pill" data-mins="60"  onclick="setWaterInterval(60)">1 hr</button>
+          <button class="int-pill" data-mins="90"  onclick="setWaterInterval(90)">1.5 hr</button>
+          <button class="int-pill" data-mins="120" onclick="setWaterInterval(120)">2 hr</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WRAP-UP ── -->
+  <div class="toggle-card" id="tcWrapup" style="--tc-color:#a78bfa">
+    <div class="tc-head">
+      <div class="tc-icon" style="background:rgba(167,139,250,.1)">🌙</div>
+      <div class="tc-body">
+        <div class="tc-name">Daily Wrap-Up</div>
+        <div class="tc-desc">End-of-day summary: tasks done, what to push to tomorrow, and a sleep prompt.</div>
+      </div>
+      <label class="tog">
+        <input type="checkbox" id="togWrapup" onchange="saveToggle('wrapup',this.checked)">
+        <span class="tog-track"></span>
+      </label>
+    </div>
+    <div class="tc-settings">
+      <div class="setting-row">
+        <span class="setting-label">Show wrap-up at</span>
+        <input type="time" class="time-inp" id="wrapupTime" value="21:00" onchange="saveWrapupTime(this.value)" style="--tc-color:#a78bfa">
+      </div>
+      <div class="setting-row" style="margin-top:.7rem">
+        <button onclick="previewWrapup()" style="background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.28);color:#a78bfa;border-radius:9px;padding:.38rem .95rem;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s">
+          👁 Preview wrap-up
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── AUTO REMINDERS ── -->
+  <div class="auto-block" style="--tc-color:#c8f064">
+    <div class="auto-block-head">
+      <div class="auto-block-icon">⚡</div>
+      <div>
+        <div class="auto-block-title">Automatic Reminders</div>
+        <div class="auto-block-sub" id="autoBlockSub">One reminder at a time, rotating through these (plus motivational messages if enabled above)</div>
+      </div>
+    </div>
+    <div class="auto-items">
+      <div class="auto-item">🌿 Habit Check-In</div>
+      <div class="auto-item">📅 Schedule Check</div>
+      <div class="auto-item">🌙 Sleep Reminder</div>
+      <div class="auto-item">☕ Break Reminder</div>
+    </div>
+    <div class="setting-row" style="margin-top:1rem">
+      <span class="setting-label">Send one every</span>
+      <div class="pill-group" id="globalPills">
+        <button class="int-pill" data-mins="60"  onclick="setGlobalInterval(60)">1 hr</button>
+        <button class="int-pill" data-mins="120" onclick="setGlobalInterval(120)">2 hr</button>
+        <button class="int-pill" data-mins="180" onclick="setGlobalInterval(180)">3 hr</button>
+        <button class="int-pill" data-mins="240" onclick="setGlobalInterval(240)">4 hr</button>
+        <button class="int-pill" data-mins="360" onclick="setGlobalInterval(360)">6 hr</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TEST -->
+  <div style="text-align:center;margin-top:1.6rem">
+    <button onclick="testNotification()" style="background:none;border:1px solid var(--border);color:var(--muted);border-radius:12px;padding:.68rem 1.7rem;font-family:'DM Sans',sans-serif;font-size:.83rem;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+      🔔 Send a test notification
+    </button>
+  </div>
+
+</div>
+
+<div class="saved-badge" id="savedBadge">✓ Saved</div>
+
+<footer>
+  <div class="footer-logo">FocuslyNow</div>
+  <p>&copy; 2026 FocuslyNow. All rights reserved.</p>
+</footer>
+
+<script>
+function updatePermBanner(perm) {
+  var b=document.getElementById('permBanner'), ic=document.getElementById('permIcon'),
+      ti=document.getElementById('permTitle'), de=document.getElementById('permDesc'),
+      bt=document.getElementById('permBtn');
+  b.className='perm-inner';
+  if(perm==='granted'){
+    b.classList.add('granted'); ic.textContent='✅';
+    ti.textContent='Notifications Active';
+    de.textContent='Desktop notifications are enabled. Reminders will reach you in the background.';
+    bt.textContent='Send Test'; bt.className='perm-btn retest'; bt.onclick=testNotification;
+  } else if(perm==='denied'){
+    b.classList.add('denied'); ic.textContent='🚫';
+    ti.textContent='Notifications Blocked';
+    de.textContent='Notifications are blocked for this site. Open browser site settings (click the lock icon in the address bar) to re-enable.';
+    bt.style.display='none';
+  } else {
+    b.classList.add('default'); ic.textContent='🔔';
+    ti.textContent='Enable Desktop Notifications';
+    de.textContent='Allow notifications so reminders reach you even when working in another app.';
+    bt.textContent='Enable Notifications'; bt.className='perm-btn ask'; bt.onclick=requestPerm;
+    bt.style.display='';
+  }
+}
+
+function requestPerm(){
+  if(!window.FN_REMINDERS){return;}
+  window.FN_REMINDERS.requestPermission(function(perm){ updatePermBanner(perm); });
+}
+
+function testNotification(){
+  if(typeof Notification==='undefined'){alert('Notifications not supported in this browser.'); return;}
+  if(Notification.permission!=='granted'){ requestPerm(); return; }
+  window.FN_showToast && window.FN_showToast('motivation');
+  try{ new Notification('FocuslyNow — Test',{body:"Your desktop notifications are working perfectly!",tag:'fn-test-'+Date.now()}); }
+  catch(e){ alert('Could not send notification: '+e.message); }
+}
+
+function flashSaved(){
+  var b=document.getElementById('savedBadge'); b.style.opacity='1';
+  clearTimeout(b._t); b._t=setTimeout(function(){ b.style.opacity='0'; },1600);
+}
+
+function saveToggle(type, enabled){
+  if(!window.FN_REMINDERS) return;
+  var s=window.FN_REMINDERS.loadSettings();
+  if(!s[type]) s[type]={};
+  s[type].enabled=enabled;
+  if(type==='wrapup' && window.FN_REMINDERS.saveWrapupSettings){
+    var ws=window.FN_REMINDERS.loadWrapupSettings ? window.FN_REMINDERS.loadWrapupSettings() : {enabled:enabled,time:'21:00'};
+    ws.enabled=enabled;
+    window.FN_REMINDERS.saveWrapupSettings(ws);
+  }
+  window.FN_REMINDERS.saveSettings(s);
+  var key=type.charAt(0).toUpperCase()+type.slice(1);
+  var card=document.getElementById('tc'+key);
+  if(card) card.classList.toggle('on', enabled);
+  flashSaved();
+}
+
+function setGlobalInterval(mins){
+  if(!window.FN_REMINDERS) return;
+  var s=window.FN_REMINDERS.loadSettings();
+  if(!s.global) s.global={};
+  s.global.intervalMins=mins;
+  window.FN_REMINDERS.saveSettings(s);
+  /* Update pill UI */
+  document.querySelectorAll('#globalPills .int-pill').forEach(function(p){
+    p.classList.toggle('active', parseInt(p.dataset.mins,10)===mins);
+  });
+  flashSaved();
+}
+
+function setWaterInterval(mins){
+  if(!window.FN_REMINDERS) return;
+  var s=window.FN_REMINDERS.loadSettings();
+  if(!s.water) s.water={enabled:true};
+  s.water.intervalMins=mins;
+  window.FN_REMINDERS.saveSettings(s);
+  /* Update pill UI */
+  document.querySelectorAll('#waterPills .int-pill').forEach(function(p){
+    p.classList.toggle('active', parseInt(p.dataset.mins,10)===mins);
+  });
+  flashSaved();
+}
+
+function saveWrapupTime(val){
+  if(!window.FN_REMINDERS) return;
+  var s=window.FN_REMINDERS.loadSettings();
+  if(!s.wrapup) s.wrapup={enabled:true};
+  s.wrapup.time=val;
+  window.FN_REMINDERS.saveSettings(s);
+  if(window.FN_REMINDERS.saveWrapupSettings){
+    var ws=window.FN_REMINDERS.loadWrapupSettings ? window.FN_REMINDERS.loadWrapupSettings() : {enabled:true,time:val};
+    ws.time=val;
+    window.FN_REMINDERS.saveWrapupSettings(ws);
+  }
+  flashSaved();
+}
+
+function previewWrapup(){
+  var fn=window.FN_showWrapUp||( window.FN_REMINDERS && window.FN_REMINDERS.showWrapUp);
+  if(fn) fn();
+  else {
+    var t=0;
+    var check=function(){ if(window.FN_showWrapUp){ window.FN_showWrapUp(); } else if(t<12){t++;setTimeout(check,300);} };
+    check();
+  }
+}
+
+function initPage(){
+  var perm=(typeof Notification!=='undefined') ? Notification.permission : 'unsupported';
+  updatePermBanner(perm);
+
+  if(!window.FN_REMINDERS) return;
+  var s=window.FN_REMINDERS.loadSettings();
+  var motOn = s.motivation ? s.motivation.enabled!==false : true;
+  var watOn = s.water      ? s.water.enabled===true        : false;
+  var watMins = s.water    ? (s.water.intervalMins||60)    : 60;
+
+  /* Wrapup: read from wrapup IIFE settings for time */
+  var wuEnabled=true, wuTime='21:00';
+  if(window.FN_REMINDERS.loadWrapupSettings){
+    var ws=window.FN_REMINDERS.loadWrapupSettings();
+    wuEnabled=ws.enabled!==false; wuTime=ws.time||'21:00';
+  } else if(s.wrapup){
+    wuEnabled=s.wrapup.enabled!==false; wuTime=s.wrapup.time||'21:00';
+  }
+
+  document.getElementById('togMotivation').checked=motOn;
+  document.getElementById('togWater').checked=watOn;
+  document.getElementById('togWrapup').checked=wuEnabled;
+  document.getElementById('wrapupTime').value=wuTime;
+
+  if(motOn) document.getElementById('tcMotivation').classList.add('on');
+  if(watOn) document.getElementById('tcWater').classList.add('on');
+  if(wuEnabled) document.getElementById('tcWrapup').classList.add('on');
+
+  /* Set active water pill */
+  document.querySelectorAll('#waterPills .int-pill').forEach(function(p){
+    p.classList.toggle('active', parseInt(p.dataset.mins,10)===watMins);
+  });
+
+  /* Set active frequency pill */
+  var globalMins = (s.global && s.global.intervalMins) ? s.global.intervalMins : 180;
+  document.querySelectorAll('#globalPills .int-pill').forEach(function(p){
+    p.classList.toggle('active', parseInt(p.dataset.mins,10)===globalMins);
+  });
+}
+
+if(window.FN_REMINDERS){ initPage(); }
+else { document.addEventListener('DOMContentLoaded',function(){ setTimeout(initPage,150); }); }
+</script>
+
+<script src="theme.js"></script>
+<script src="reminders.js"></script>
+</body>
+</html>

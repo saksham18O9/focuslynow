@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Water Tracker — FocuslyNow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0f14;--card:#1a1e28;--surface:#111318;--accent:#64d4f0;--accent2:#c8f064;--accent3:#f0a064;--accent4:#a78bfa;--text:#e8eaf2;--muted:#7a7f96;--border:#2a2e3d}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(13,15,20,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:9999;gap:.6rem;overflow:visible}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:.7rem;list-style:none;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.nav-links>li>a{color:var(--muted);text-decoration:none;font-size:.83rem;font-weight:500;transition:color .18s}
+.nav-links>li>a:hover{color:var(--text)}
+.nav-sep{width:1px;height:14px;background:var(--border);margin:0 .1rem;display:inline-block;vertical-align:middle}
+.jbtn{border-radius:7px;padding:.3rem .72rem;font-size:.71rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .18s;white-space:nowrap;display:inline-flex;align-items:center;gap:.25rem}
+.jbtn.g{background:rgba(200,240,100,.08);border:1px solid rgba(200,240,100,.22);color:#c8f064}.jbtn.g:hover{background:rgba(200,240,100,.18)}
+.jbtn.b{background:rgba(100,212,240,.08);border:1px solid rgba(100,212,240,.22);color:#64d4f0}.jbtn.b:hover{background:rgba(100,212,240,.18)}
+.jbtn.o{background:rgba(240,160,100,.08);border:1px solid rgba(240,160,100,.22);color:#f0a064}.jbtn.o:hover{background:rgba(240,160,100,.18)}
+.jbtn.p{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.22);color:#a78bfa}.jbtn.p:hover{background:rgba(167,139,250,.18)}
+
+.page-header{padding:3rem 2rem 1.5rem;text-align:center;position:relative}
+.page-header::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 55% 60% at 50% 30%,rgba(100,212,240,.06) 0%,transparent 70%);pointer-events:none}
+.page-tag{display:inline-block;background:rgba(100,212,240,.1);border:1px solid rgba(100,212,240,.3);color:var(--accent);font-size:.72rem;letter-spacing:2px;text-transform:uppercase;padding:.3rem .9rem;border-radius:100px;margin-bottom:.9rem}
+.page-header h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.6rem);font-weight:900;letter-spacing:-1.5px}
+.page-header p{color:var(--muted);margin-top:.5rem;font-size:.9rem}
+
+.main-wrap{max-width:1100px;margin:0 auto;padding:0 2rem 5rem}
+
+/* GLASS VISUAL */
+.glass-section{display:flex;justify-content:center;margin-bottom:1.8rem}
+.glass-visual{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2rem 2.5rem;text-align:center;min-width:280px;position:relative;overflow:hidden}
+.glass-visual::before{content:'';position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:180px;height:180px;border-radius:50%;background:var(--accent);filter:blur(80px);opacity:.06}
+.glass-svg-wrap{width:80px;height:120px;margin:0 auto .8rem;position:relative}
+.glass-pct{font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:var(--accent);margin-bottom:.2rem}
+.glass-ml{font-size:.88rem;color:var(--muted)}
+.glass-goal-row{display:flex;align-items:center;justify-content:center;gap:.6rem;margin-top:.8rem;flex-wrap:wrap}
+.glass-goal-label{font-size:.75rem;color:var(--muted)}
+.goal-inp{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:.32rem .65rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.82rem;outline:none;width:80px;transition:border-color .2s;text-align:center}
+.goal-inp:focus{border-color:var(--accent)}
+.goal-unit{font-size:.75rem;color:var(--muted)}
+.glass-status{font-size:.82rem;margin-top:.6rem;line-height:1.4}
+
+/* STATS MINI ROW */
+.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.8rem}
+@media(max-width:580px){.mini-stats{grid-template-columns:1fr}}
+.mini-stat{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.4rem;text-align:center}
+.ms-val{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;color:var(--accent)}
+.ms-label{font-size:.72rem;color:var(--muted);margin-top:.25rem;text-transform:uppercase;letter-spacing:.8px}
+.ms-sub{font-size:.72rem;color:var(--muted);margin-top:.2rem}
+
+/* QUICK ADD */
+.quick-add{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.6rem 1.8rem;margin-bottom:1.4rem}
+.qa-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:1.1rem;display:flex;align-items:center;gap:.5rem}
+.preset-btns{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1.1rem}
+.preset-btn{padding:.55rem 1.1rem;border-radius:10px;border:1px solid rgba(100,212,240,.25);background:rgba(100,212,240,.07);color:var(--accent);font-size:.85rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;transition:all .2s;display:flex;align-items:center;gap:.35rem}
+.preset-btn:hover{background:rgba(100,212,240,.18);border-color:var(--accent);transform:translateY(-2px)}
+.preset-btn .pb-ml{font-size:.7rem;opacity:.75}
+.custom-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.custom-row label{font-size:.75rem;color:var(--muted);white-space:nowrap}
+.qty-inp{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.6rem .85rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:120px}
+.qty-inp:focus{border-color:var(--accent)}
+.qty-unit{font-size:.82rem;color:var(--muted)}
+.add-water-btn{padding:.62rem 1.3rem;background:var(--accent);color:#0d0f14;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;transition:opacity .2s,transform .18s}
+.add-water-btn:hover{opacity:.85;transform:translateY(-2px)}
+.add-time-inp{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.6rem .85rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:110px}
+.add-time-inp:focus{border-color:var(--accent)}
+
+/* BEVERAGE SECTION */
+.bev-section{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.6rem 1.8rem;margin-bottom:1.4rem}
+.bev-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;margin-bottom:.4rem;display:flex;align-items:center;gap:.5rem}
+.bev-subtitle{font-size:.8rem;color:var(--muted);margin-bottom:1.1rem}
+.bev-presets{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.bev-chip{padding:.38rem .85rem;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:.78rem;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .18s}
+.bev-chip:hover{border-color:var(--accent4);color:var(--text)}
+.bev-chip.sel{background:rgba(167,139,250,.12);border-color:var(--accent4);color:var(--accent4)}
+.bev-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.bev-inp{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.6rem .85rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s;flex:1;min-width:140px}
+.bev-inp:focus{border-color:var(--accent4)}.bev-inp::placeholder{color:var(--muted)}
+.bev-qty{width:100px;background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:.6rem .85rem;color:var(--text);font-family:'DM Sans',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s}
+.bev-qty:focus{border-color:var(--accent4)}
+.add-bev-btn{padding:.62rem 1.2rem;background:var(--accent4);color:#0d0f14;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:opacity .2s,transform .18s;white-space:nowrap}
+.add-bev-btn:hover{opacity:.85;transform:translateY(-2px)}
+
+/* INSIGHT */
+.insight-box{background:var(--card);border:1px solid rgba(100,212,240,.2);border-radius:16px;padding:1.4rem 1.6rem;margin-bottom:1.8rem}
+.ib-title{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:var(--accent);margin-bottom:.8rem;display:flex;align-items:center;gap:.4rem}
+.ib-tip{display:flex;align-items:flex-start;gap:.6rem;font-size:.84rem;color:var(--muted);line-height:1.55;margin-bottom:.45rem}
+.ib-tip-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+
+/* LOG LIST */
+.log-section{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden}
+.ls-header{padding:1.1rem 1.6rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.6rem}
+.ls-header h3{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700}
+.ls-date-nav{display:flex;gap:.4rem;align-items:center;overflow:visible}
+.ls-dbn{background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:.32rem .75rem;cursor:pointer;font-size:.78rem;font-family:'DM Sans',sans-serif;transition:all .2s}
+.ls-dbn:hover{border-color:var(--accent);color:var(--text)}
+.ls-date-chip{font-size:.8rem;color:var(--accent);font-weight:600;padding:.3rem .75rem;background:rgba(100,212,240,.08);border-radius:7px;border:1px solid rgba(100,212,240,.2)}
+.chart-wrap{padding:1rem 1.4rem;border-bottom:1px solid var(--border)}
+.bar-chart{display:flex;align-items:flex-end;gap:.3rem;height:70px}
+.bc-col{display:flex;flex-direction:column;align-items:center;gap:.2rem;flex:1}
+.bc-bar{width:100%;border-radius:3px 3px 0 0;transition:height .5s cubic-bezier(.34,1.56,.64,1);min-height:2px}
+.bc-lbl{font-size:.58rem;color:var(--muted);white-space:nowrap}
+.log-list{max-height:360px;overflow-y:auto;padding:.5rem 1rem}
+.log-list::-webkit-scrollbar{width:4px}
+.log-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.log-entry{display:flex;align-items:center;gap:.9rem;padding:.65rem .3rem;border-bottom:1px solid rgba(42,46,61,.4);animation:fadeIn .2s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+.log-entry:last-child{border-bottom:none}
+.le-icon{font-size:1.2rem;flex-shrink:0}
+.le-body{flex:1;min-width:0}
+.le-name{font-size:.86rem;font-weight:600}
+.le-meta{font-size:.72rem;color:var(--muted);margin-top:1px}
+.le-amt{font-size:.88rem;font-weight:700;color:var(--accent);white-space:nowrap}
+.le-del{background:none;border:1px solid var(--border);border-radius:6px;color:var(--muted);font-size:.68rem;padding:.18rem .45rem;cursor:pointer;transition:all .18s;flex-shrink:0}
+.le-del:hover{border-color:#f06464;color:#f06464}
+.log-empty{padding:2rem;text-align:center;color:var(--muted);font-size:.88rem}
+
+footer{padding:2rem 2.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-logo{font-family:'Playfair Display',serif;font-weight:900;color:var(--accent);font-size:1.1rem}
+footer p{color:var(--muted);font-size:.78rem}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">FocuslyNow</a>
+  <ul class="nav-links">
+    <li><a href="habit-tracker.html" class="jbtn g">🌿 Habits</a></li>
+    <li><a href="schedule-maker.html" class="jbtn b">📅 Schedule</a></li>
+    <li><a href="notes.html" class="jbtn o">📝 Notes</a></li>
+    <li><a href="focus-timer.html" class="jbtn o">⏱ Timer</a></li>
+    <li><a href="todo.html" class="jbtn p">🎯 To-Do</a></li>
+    <li><a href="sleep-tracker.html" class="jbtn b">🌙 Sleep</a></li>
+    <li><a href="water-tracker.html" class="jbtn b">💧 Water</a></li>
+    <li><a href="goal-tracker.html" class="jbtn g">🏆 Goals</a></li>
+    <li class="nav-more-wrap">
+      <button class="jbtn more-btn" onclick="FN_toggleMore()">⋯ More</button>
+      <div class="nav-more-dropdown" id="moreNavDrop">
+        <a href="reminders.html">🔔 Reminders</a>
+        <a href="weekly-review.html">📊 Report</a>
+        <a href="data.html">💾 Data Backup</a>
+      </div>
+    </li>
+    <li><button class="fn-theme-btn" onclick="FN_toggleTheme()">☀</button></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <div class="page-tag">💧 Water Tracker</div>
+  <h1>Stay Hydrated</h1>
+  <p>Log your water and beverages. Get personalised tips based on your habits.</p>
+</div>
+
+<div class="main-wrap">
+
+  <!-- GLASS VISUAL -->
+  <div class="glass-section">
+    <div class="glass-visual">
+      <div class="glass-svg-wrap">
+        <svg width="80" height="120" viewBox="0 0 80 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <clipPath id="glassClip">
+              <path d="M10 10 L70 10 L62 112 L18 112 Z"/>
+            </clipPath>
+          </defs>
+          <!-- glass outline -->
+          <path d="M10 10 L70 10 L62 112 L18 112 Z" fill="rgba(100,212,240,0.05)" stroke="rgba(100,212,240,0.3)" stroke-width="1.5"/>
+          <!-- water fill -->
+          <rect id="waterFill" x="0" y="0" width="80" height="120" fill="rgba(100,212,240,0.35)" clip-path="url(#glassClip)" style="transition:y .8s cubic-bezier(.34,1.56,.64,1)"/>
+          <!-- shine -->
+          <line x1="22" y1="18" x2="18" y2="105" stroke="rgba(255,255,255,0.08)" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="glass-pct" id="glassPct">0%</div>
+      <div class="glass-ml" id="glassMl">0 ml of <span id="goalDisplay">2500</span> ml goal</div>
+      <div class="glass-goal-row">
+        <span class="glass-goal-label">Daily goal:</span>
+        <input type="number" class="goal-inp" id="goalInp" value="2500" min="500" max="6000" step="100" onchange="updateGoal()"/>
+        <span class="goal-unit">ml</span>
+      </div>
+      <div class="glass-status" id="glassStatus">—</div>
+    </div>
+  </div>
+
+  <!-- MINI STATS -->
+  <div class="mini-stats">
+    <div class="mini-stat">
+      <div class="ms-val" id="statToday">0</div>
+      <div class="ms-label">Today (ml)</div>
+      <div class="ms-sub" id="statTodayBev">+0 ml other beverages</div>
+    </div>
+    <div class="mini-stat">
+      <div class="ms-val" id="stat7d">—</div>
+      <div class="ms-label">7-Day Avg (ml)</div>
+      <div class="ms-sub" id="stat7dSub">—</div>
+    </div>
+    <div class="mini-stat">
+      <div class="ms-val" id="stat30d">—</div>
+      <div class="ms-label">30-Day Avg (ml)</div>
+      <div class="ms-sub" id="stat30dSub">—</div>
+    </div>
+  </div>
+
+  <!-- QUICK ADD WATER -->
+  <div class="quick-add">
+    <div class="qa-title">💧 Log Water</div>
+    <div class="preset-btns">
+      <button class="preset-btn" onclick="quickAdd(250)">💧 <span>250</span><span class="pb-ml">ml</span></button>
+      <button class="preset-btn" onclick="quickAdd(330)">🥤 <span>330</span><span class="pb-ml">ml</span></button>
+      <button class="preset-btn" onclick="quickAdd(500)">💧 <span>500</span><span class="pb-ml">ml</span></button>
+      <button class="preset-btn" onclick="quickAdd(750)">🫗 <span>750</span><span class="pb-ml">ml</span></button>
+      <button class="preset-btn" onclick="quickAdd(1000)">🍶 <span>1L</span><span class="pb-ml">1000ml</span></button>
+    </div>
+    <div class="custom-row">
+      <label>Custom amount:</label>
+      <input type="number" class="qty-inp" id="customQty" placeholder="350" min="1" max="5000" step="10"/>
+      <span class="qty-unit">ml</span>
+      <label>At:</label>
+      <input type="time" class="add-time-inp" id="waterTime"/>
+      <button class="add-water-btn" onclick="addWater()">+ Add Water</button>
+    </div>
+  </div>
+
+  <!-- BEVERAGES -->
+  <div class="bev-section">
+    <div class="bev-title">🥛 Other Beverages</div>
+    <div class="bev-subtitle">Track other drinks throughout your day (tea, coffee, juice, milk, etc.)</div>
+    <div class="bev-presets">
+      <button class="bev-chip" onclick="selectBev('☕ Coffee')">☕ Coffee</button>
+      <button class="bev-chip" onclick="selectBev('🍵 Tea')">🍵 Tea</button>
+      <button class="bev-chip" onclick="selectBev('🥛 Milk')">🥛 Milk</button>
+      <button class="bev-chip" onclick="selectBev('🧃 Juice')">🧃 Juice</button>
+      <button class="bev-chip" onclick="selectBev('🥤 Soda')">🥤 Soda</button>
+      <button class="bev-chip" onclick="selectBev('🧋 Smoothie')">🧋 Smoothie</button>
+      <button class="bev-chip" onclick="selectBev('🍺 Beer')">🍺 Beer</button>
+      <button class="bev-chip" onclick="selectBev('⚡ Energy Drink')">⚡ Energy Drink</button>
+    </div>
+    <div class="bev-row">
+      <input type="text" class="bev-inp" id="bevName" placeholder="Beverage name…"/>
+      <input type="number" class="bev-qty" id="bevQty" placeholder="250" min="1" max="3000" step="10"/>
+      <span class="qty-unit">ml</span>
+      <button class="add-bev-btn" onclick="addBeverage()">+ Add Beverage</button>
+    </div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="insight-box">
+    <div class="ib-title">💡 Hydration Insights</div>
+    <div id="insightTips"></div>
+  </div>
+
+  <!-- LOG -->
+  <div class="log-section">
+    <div class="ls-header">
+      <h3>📋 Daily Log</h3>
+      <div class="ls-date-nav">
+        <button class="ls-dbn" onclick="shiftLogDay(-1)">← Prev</button>
+        <span class="ls-date-chip" id="logDateChip">Today</span>
+        <button class="ls-dbn" onclick="shiftLogDay(1)">Next →</button>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="bar-chart" id="weekChart"></div>
+    </div>
+    <div class="log-list" id="logList"></div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">FocuslyNow</div>
+  <p>&copy; 2026 FocuslyNow. All rights reserved.</p>
+</footer>
+
+<script>
+
+function fnAlert(msg, icon) {
+  document.getElementById('fnAlertIcon').textContent = icon || '⚠️';
+  document.getElementById('fnAlertMsg').textContent = msg;
+  document.getElementById('fnAlertOverlay').style.display = 'flex';
+}
+var _fnConfirmCb = null;
+function fnConfirm(msg, cb) {
+  document.getElementById('fnConfirmMsg').textContent = msg;
+  document.getElementById('fnConfirmOverlay').style.display = 'flex';
+  _fnConfirmCb = cb;
+}
+function fnConfirmOK()    { document.getElementById('fnConfirmOverlay').style.display='none'; if(_fnConfirmCb) _fnConfirmCb(); _fnConfirmCb=null; }
+function fnConfirmCancel(){ document.getElementById('fnConfirmOverlay').style.display='none'; _fnConfirmCb=null; }
+
+var WATER_KEY = 'fn_water_v1';
+var GOAL_KEY  = 'fn_water_goal';
+var logDate = new Date(); logDate.setHours(0,0,0,0);
+
+function dateKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function todayKey(){ var t=new Date();t.setHours(0,0,0,0);return dateKey(t); }
+function esc(s){ var d=document.createElement('div');d.textContent=s;return d.innerHTML; }
+function loadData(){ try{ return JSON.parse(localStorage.getItem(WATER_KEY)||'[]'); }catch(e){ return []; } }
+function saveData(d){ localStorage.setItem(WATER_KEY, JSON.stringify(d)); }
+function getGoal(){ return parseInt(localStorage.getItem(GOAL_KEY)||'2500'); }
+function saveGoal(g){ localStorage.setItem(GOAL_KEY, g); }
+
+function nowTime(){
+  var n=new Date();
+  return String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+}
+
+/* ── QUICK ADD ── */
+function quickAdd(ml){
+  var t = document.getElementById('waterTime').value || nowTime();
+  addEntry('💧 Water', ml, t, false);
+}
+
+function addWater(){
+  var qty = parseInt(document.getElementById('customQty').value);
+  var t   = document.getElementById('waterTime').value || nowTime();
+  if(!qty || qty < 1){ fnAlert('Please enter a valid amount.','💧'); return; }
+  addEntry('💧 Water', qty, t, false);
+  document.getElementById('customQty').value = '';
+}
+
+function addBeverage(){
+  var name = document.getElementById('bevName').value.trim();
+  var qty  = parseInt(document.getElementById('bevQty').value);
+  if(!name){ fnAlert('Please enter a beverage name.','💧'); return; }
+  if(!qty || qty < 1){ fnAlert('Please enter a valid amount.','💧'); return; }
+  addEntry(name, qty, nowTime(), true);
+  document.getElementById('bevName').value = '';
+  document.getElementById('bevQty').value = '';
+  document.querySelectorAll('.bev-chip').forEach(function(c){ c.classList.remove('sel'); });
+}
+
+function selectBev(name){
+  document.getElementById('bevName').value = name;
+  document.querySelectorAll('.bev-chip').forEach(function(c){ c.classList.remove('sel'); if(c.textContent===name) c.classList.add('sel'); });
+}
+
+function addEntry(name, ml, time, isBev){
+  var data = loadData();
+  var dk = dateKey(logDate);
+  data.push({ id: Date.now()+Math.floor(Math.random()*999), date: dk, name: name, ml: ml, time: time, isBev: isBev });
+  saveData(data);
+  renderAll();
+}
+
+/* ── DELETE ── */
+function deleteEntry(id){
+  var data = loadData().filter(function(e){ return String(e.id) !== String(id); });
+  saveData(data);
+  renderAll();
+}
+
+/* ── GOAL ── */
+function updateGoal(){
+  var g = parseInt(document.getElementById('goalInp').value);
+  if(g >= 500 && g <= 6000){ saveGoal(g); renderAll(); }
+}
+
+/* ── GLASS ── */
+function renderGlass(){
+  var data = loadData();
+  var goal = getGoal();
+  var dk = todayKey();
+  var todayEntries = data.filter(function(e){ return e.date === dk; });
+  var waterMl = todayEntries.filter(function(e){ return !e.isBev; }).reduce(function(s,e){return s+e.ml;},0);
+  var bevMl   = todayEntries.filter(function(e){ return e.isBev; }).reduce(function(s,e){return s+e.ml;},0);
+  var pct = Math.min(100, Math.round((waterMl/goal)*100));
+
+  // update SVG water fill
+  var fillEl = document.getElementById('waterFill');
+  if(fillEl){ fillEl.setAttribute('y', (120*(1-pct/100)).toFixed(1)); }
+
+  document.getElementById('glassPct').textContent = pct+'%';
+  document.getElementById('glassMl').innerHTML = waterMl+' ml of <span id="goalDisplay2">'+goal+'</span> ml goal';
+  document.getElementById('goalInp').value = goal;
+
+  var remaining = goal - waterMl;
+  var status;
+  if(pct >= 100)     status = '🎉 Goal reached! Excellent hydration today.';
+  else if(pct >= 75) status = '✅ Almost there! '+remaining+' ml left to reach your goal.';
+  else if(pct >= 50) status = '💪 Halfway done — '+remaining+' ml remaining.';
+  else if(pct >= 25) status = '⚠️ '+remaining+' ml to go. Keep drinking steadily.';
+  else               status = '🚨 You\'ve barely started. Drink '+remaining+' ml more today.';
+  document.getElementById('glassStatus').textContent = status;
+
+  // mini stats
+  document.getElementById('statToday').textContent = waterMl;
+  document.getElementById('statTodayBev').textContent = bevMl ? '+'+bevMl+' ml other beverages' : 'No other beverages today';
+}
+
+/* ── MINI STATS ── */
+function renderMiniStats(){
+  var data = loadData();
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  function avgWater(days){
+    var results = [];
+    for(var i=0;i<days;i++){
+      var d = new Date(today.getTime()-i*86400000);
+      var dk = dateKey(d);
+      var dayEntries = data.filter(function(e){return e.date===dk && !e.isBev;});
+      if(dayEntries.length) results.push(dayEntries.reduce(function(s,e){return s+e.ml;},0));
+    }
+    return results.length ? Math.round(results.reduce(function(s,v){return s+v;},0)/results.length) : null;
+  }
+
+  var avg7 = avgWater(7);
+  var avg30 = avgWater(30);
+
+  document.getElementById('stat7d').textContent = avg7 !== null ? avg7 : '—';
+  document.getElementById('stat7dSub').textContent = avg7 !== null ? (avg7 >= getGoal() ? '✅ Above goal' : 'Goal: '+getGoal()+' ml') : 'Not enough data';
+  document.getElementById('stat30d').textContent = avg30 !== null ? avg30 : '—';
+  document.getElementById('stat30dSub').textContent = avg30 !== null ? (avg30 >= getGoal() ? '✅ Consistent!' : 'Goal: '+getGoal()+' ml') : 'Not enough data';
+}
+
+/* ── INSIGHTS ── */
+function renderInsights(){
+  var data = loadData();
+  var dk = todayKey();
+  var todayW = data.filter(function(e){return e.date===dk&&!e.isBev;}).reduce(function(s,e){return s+e.ml;},0);
+  var goal = getGoal();
+  var tips = [];
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  // 7-day average
+  var weekTotals = [];
+  for(var i=1;i<8;i++){
+    var d2=new Date(today.getTime()-i*86400000);var dk2=dateKey(d2);
+    var wt=data.filter(function(e){return e.date===dk2&&!e.isBev;}).reduce(function(s,e){return s+e.ml;},0);
+    if(wt>0) weekTotals.push(wt);
+  }
+  var weekAvg = weekTotals.length ? Math.round(weekTotals.reduce(function(s,v){return s+v;},0)/weekTotals.length) : null;
+
+  if(todayW === 0) tips.push({icon:'🌅', text:'Start your day with a glass of water immediately after waking. It jumpstarts your metabolism and rehydrates after overnight fasting.'});
+  if(todayW > 0 && todayW < goal*0.5) tips.push({icon:'⏰', text:'Set a reminder every 90 minutes to drink water. Small consistent sips beat trying to catch up in the evening.'});
+  if(weekAvg && weekAvg < goal*0.7) tips.push({icon:'📉', text:'Your weekly average is below 70% of your goal. Chronic underhydration affects concentration, energy and skin health.'});
+  if(weekAvg && weekAvg >= goal) tips.push({icon:'🏆', text:'You\'re hitting your weekly goal consistently — outstanding habit! Keep this up to support kidney health and energy levels.'});
+
+  var hasBev = data.filter(function(e){return e.date===dk&&e.isBev&&(e.name.toLowerCase().includes('coffee')||e.name.toLowerCase().includes('☕'));}).length > 1;
+  if(hasBev) tips.push({icon:'☕', text:'You\'ve logged multiple coffees today. Caffeine is a mild diuretic — add an extra 200ml of water for each coffee you drink.'});
+
+  tips.push({icon:'🍉', text:'Eating water-rich foods like cucumber, watermelon, and celery contributes to daily hydration — around 20% can come from food.'});
+  tips.push({icon:'🌡️', text:'In hot weather or after exercise, increase your goal by 500–1000ml to compensate for sweat loss.'});
+
+  tips = tips.slice(0,4);
+  document.getElementById('insightTips').innerHTML = tips.map(function(t){
+    return '<div class="ib-tip"><span class="ib-tip-icon">'+t.icon+'</span><span>'+esc(t.text)+'</span></div>';
+  }).join('');
+}
+
+/* ── LOG LIST ── */
+function shiftLogDay(n){ logDate = new Date(logDate.getTime()+n*86400000); renderLog(); }
+
+function renderLog(){
+  var data = loadData();
+  var dk = dateKey(logDate);
+  var tk = todayKey();
+  var isToday = dk === tk;
+
+  var chipText = isToday ? 'Today' : logDate.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('logDateChip').textContent = chipText;
+
+  // 7-day bar chart
+  var today = new Date(); today.setHours(0,0,0,0);
+  var goal = getGoal();
+  var chartHtml = '';
+  for(var i=6;i>=0;i--){
+    var d=new Date(today.getTime()-i*86400000);
+    var cdK=dateKey(d);
+    var dayMl=data.filter(function(e){return e.date===cdK&&!e.isBev;}).reduce(function(s,e){return s+e.ml;},0);
+    var pct=Math.min(100,Math.round((dayMl/goal)*100));
+    var col=pct>=100?'var(--accent2)':pct>=70?'var(--accent)':pct>=40?'var(--accent3)':'#f06464';
+    var lbl=d.toLocaleDateString('en-IN',{weekday:'short'});
+    chartHtml+='<div class="bc-col" title="'+dayMl+'ml">'
+      +'<div class="bc-bar" style="height:'+Math.max(pct,2)+'%;background:'+col+'"></div>'
+      +'<span class="bc-lbl">'+lbl+'</span>'
+      +'</div>';
+  }
+  document.getElementById('weekChart').innerHTML = chartHtml;
+
+  // entries for selected date
+  var entries = data.filter(function(e){ return e.date === dk; }).sort(function(a,b){ return a.time.localeCompare(b.time); });
+  if(!entries.length){
+    document.getElementById('logList').innerHTML = '<div class="log-empty">No entries for this day yet.</div>';
+    return;
+  }
+
+  document.getElementById('logList').innerHTML = entries.map(function(e){
+    var icon = e.isBev ? '🥛' : '💧';
+    if(e.name.includes('☕')||e.name.toLowerCase().includes('coffee')) icon='☕';
+    else if(e.name.includes('🍵')||e.name.toLowerCase().includes('tea')) icon='🍵';
+    else if(e.name.includes('🧃')||e.name.toLowerCase().includes('juice')) icon='🧃';
+    else if(e.name.includes('🥤')) icon='🥤';
+    else if(e.name.includes('🧋')) icon='🧋';
+    return '<div class="log-entry">'
+      +'<span class="le-icon">'+icon+'</span>'
+      +'<div class="le-body">'
+      +'<div class="le-name">'+esc(e.name)+'</div>'
+      +'<div class="le-meta">'+e.time+(e.isBev?' · Other beverage':' · Water')+'</div>'
+      +'</div>'
+      +'<span class="le-amt">'+e.ml+' ml</span>'
+      +'<button class="le-del" data-eid="'+e.id+'" onclick="deleteEntry(this.dataset.eid)">✕</button>'
+      +'</div>';
+  }).join('');
+}
+
+/* ── RENDER ALL ── */
+function renderAll(){
+  renderGlass();
+  renderMiniStats();
+  renderInsights();
+  renderLog();
+}
+
+/* ── INIT ── */
+document.getElementById('waterTime').value = nowTime();
+renderAll();
+</script>
+<script src="theme.js"></script>
+<script src="reminders.js"></script>
+
+<div id="fnAlertOverlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(4px)">
+  <div style="background:var(--card,#1a1e28);border:1px solid var(--border,#2a2e3d);border-radius:20px;padding:2rem 2.4rem;max-width:380px;width:90%;text-align:center;animation:fnAlIn .25s cubic-bezier(.34,1.56,.64,1)">
+    <div id="fnAlertIcon" style="font-size:2rem;margin-bottom:.7rem">⚠️</div>
+    <div id="fnAlertMsg" style="color:var(--text,#e8eaf2);font-size:.93rem;line-height:1.6;margin-bottom:1.5rem"></div>
+    <button onclick="document.getElementById('fnAlertOverlay').style.display='none'" style="background:var(--accent,#c8f064);color:#0d0f14;border:none;border-radius:10px;padding:.65rem 2rem;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer">OK</button>
+  </div>
+</div>
+<style>@keyframes fnAlIn{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}</style>
+
+<div id="fnConfirmOverlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(4px)">
+  <div style="background:var(--card,#1a1e28);border:1px solid var(--border,#2a2e3d);border-radius:20px;padding:2rem 2.4rem;max-width:380px;width:90%;text-align:center;animation:fnAlIn .25s cubic-bezier(.34,1.56,.64,1)">
+    <div style="font-size:2rem;margin-bottom:.7rem">🗑️</div>
+    <div id="fnConfirmMsg" style="color:var(--text,#e8eaf2);font-size:.93rem;line-height:1.6;margin-bottom:1.5rem"></div>
+    <div style="display:flex;gap:.7rem;justify-content:center">
+      <button onclick="fnConfirmCancel()" style="padding:.6rem 1.3rem;background:transparent;border:1px solid var(--border,#2a2e3d);border-radius:10px;color:var(--muted,#7a7f96);font-family:'DM Sans',sans-serif;font-size:.9rem;cursor:pointer">Cancel</button>
+      <button onclick="fnConfirmOK()" style="padding:.6rem 1.4rem;background:#f06464;border:none;border-radius:10px;color:#fff;font-family:'DM Sans',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer">Delete</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

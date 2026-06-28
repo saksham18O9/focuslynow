@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Weekly Review — FocuslyNow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d0f14;--card:#1a1e28;--surface:#111318;--accent:#c8f064;--accent2:#64d4f0;--accent3:#f0a064;--accent4:#a78bfa;--text:#e8eaf2;--muted:#7a7f96;--border:#2a2e3d}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:rgba(13,15,20,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:9999;gap:.6rem;overflow:visible}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:900;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:.7rem;list-style:none;align-items:center;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}
+.nav-links>li>a{color:var(--muted);text-decoration:none;font-size:.83rem;font-weight:500;transition:color .18s}
+.nav-links>li>a:hover{color:var(--text)}
+.nav-sep{width:1px;height:14px;background:var(--border);margin:0 .1rem;display:inline-block;vertical-align:middle}
+.jbtn{border-radius:7px;padding:.3rem .72rem;font-size:.71rem;font-weight:600;cursor:pointer;text-decoration:none;transition:all .18s;white-space:nowrap;display:inline-flex;align-items:center;gap:.25rem}
+.jbtn.g{background:rgba(200,240,100,.08);border:1px solid rgba(200,240,100,.22);color:#c8f064}.jbtn.g:hover{background:rgba(200,240,100,.18)}
+.jbtn.b{background:rgba(100,212,240,.08);border:1px solid rgba(100,212,240,.22);color:#64d4f0}.jbtn.b:hover{background:rgba(100,212,240,.18)}
+.jbtn.o{background:rgba(240,160,100,.08);border:1px solid rgba(240,160,100,.22);color:#f0a064}.jbtn.o:hover{background:rgba(240,160,100,.18)}
+.jbtn.p{background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.22);color:#a78bfa}.jbtn.p:hover{background:rgba(167,139,250,.18)}
+.hero{padding:4rem 2rem 2rem;text-align:center;position:relative}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 50% 30%,rgba(100,212,240,.06) 0%,transparent 70%);pointer-events:none}
+.hero-tag{display:inline-block;background:rgba(100,212,240,.1);border:1px solid rgba(100,212,240,.3);color:var(--accent2);font-size:.75rem;letter-spacing:2px;text-transform:uppercase;padding:.38rem 1.1rem;border-radius:100px;margin-bottom:1.1rem}
+.hero h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.8rem);font-weight:900;letter-spacing:-2px}
+.hero h1 span{color:var(--accent2)}
+.week-nav{display:flex;justify-content:center;align-items:center;gap:1rem;padding:.8rem 2rem 1.5rem;overflow:visible}
+.wnav-btn{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:9px;padding:.4rem .9rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.83rem;transition:all .2s}
+.wnav-btn:hover{border-color:var(--accent2);color:var(--text)}
+.week-label{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--accent2);padding:.4rem 1.2rem;background:var(--card);border:1px solid var(--accent2);border-radius:12px;min-width:260px;text-align:center}
+.content{max-width:1160px;margin:0 auto;padding:0 2rem 4rem;display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}
+@media(max-width:800px){.content{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:1.5rem 1.6rem;position:relative;overflow:hidden}
+.card-full{grid-column:1/-1}
+.card-hdr{display:flex;align-items:center;gap:.6rem;margin-bottom:1.2rem}
+.card-icon{font-size:1.4rem}
+.card-title{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700}
+.card-sub{font-size:.75rem;color:var(--muted);margin-left:auto}
+.big-stat{font-family:'Playfair Display',serif;font-size:2.8rem;font-weight:900;line-height:1}
+.stat-label{font-size:.78rem;color:var(--muted);margin-top:.3rem}
+.stat-row{display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:.5rem}
+.stat-box{flex:1;min-width:80px}
+.progress-bar-wrap{margin-top:.8rem}
+.pb-row{display:flex;align-items:center;gap:.7rem;margin-bottom:.55rem}
+.pb-label{font-size:.78rem;color:var(--muted);min-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.pb-track{flex:1;height:7px;background:var(--surface);border-radius:6px;overflow:hidden}
+.pb-fill{height:100%;border-radius:6px;transition:width .6s ease}
+.pb-val{font-size:.72rem;color:var(--text);font-weight:700;min-width:32px;text-align:right;flex-shrink:0}
+.day-bars{display:flex;align-items:flex-end;gap:5px;height:70px;margin-top:.9rem}
+.dbar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.dbar{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height .5s ease}
+.dbar-lbl{font-size:.58rem;color:var(--muted)}
+.dbar-val{font-size:.6rem;color:var(--muted);font-weight:600}
+.score-ring{position:relative;display:inline-flex;align-items:center;justify-content:center}
+.score-ring svg{transform:rotate(-90deg)}
+.score-inner{position:absolute;text-align:center}
+.score-num{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:900}
+.score-lbl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.grade-badge{display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:14px;font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:900;margin-left:1rem;flex-shrink:0}
+.no-data{color:var(--muted);font-size:.85rem;padding:.6rem 0;line-height:1.6}
+.insight-list{list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.4rem}
+.insight-item{display:flex;align-items:flex-start;gap:.6rem;font-size:.84rem;line-height:1.45;padding:.5rem .7rem;background:var(--surface);border-radius:9px}
+.ii-icon{flex-shrink:0;font-size:1rem}
+footer{padding:2rem 2.5rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-logo{font-family:'Playfair Display',serif;font-weight:900;color:var(--accent);font-size:1.1rem}
+footer p{color:var(--muted);font-size:.78rem}
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">FocuslyNow</a>
+  <ul class="nav-links">
+    <li><a href="habit-tracker.html" class="jbtn g">🌿 Habits</a></li>
+    <li><a href="schedule-maker.html" class="jbtn b">📅 Schedule</a></li>
+    <li><a href="notes.html" class="jbtn o">📝 Notes</a></li>
+    <li><a href="focus-timer.html" class="jbtn o">⏱ Timer</a></li>
+    <li><a href="todo.html" class="jbtn p">🎯 To-Do</a></li>
+    <li><a href="sleep-tracker.html" class="jbtn b">🌙 Sleep</a></li>
+    <li><a href="water-tracker.html" class="jbtn b">💧 Water</a></li>
+    <li><a href="goal-tracker.html" class="jbtn g">🏆 Goals</a></li>
+    <li class="nav-more-wrap">
+      <button class="jbtn more-btn" onclick="FN_toggleMore()">⋯ More</button>
+      <div class="nav-more-dropdown" id="moreNavDrop">
+        <a href="reminders.html">🔔 Reminders</a>
+        <a href="weekly-review.html">📊 Report</a>
+        <a href="data.html">💾 Data Backup</a>
+      </div>
+    </li>
+    <li><button class="fn-theme-btn" onclick="FN_toggleTheme()">☀</button></li>
+  </ul>
+</nav>
+<div class="hero">
+  <div class="hero-tag">📊 Weekly Review</div>
+  <h1>Your Week in <span>Review</span></h1>
+</div>
+<div class="week-nav">
+  <button class="wnav-btn" onclick="shiftWeek(-1)">← Prev Week</button>
+  <div class="week-label" id="weekLabel">—</div>
+  <button class="wnav-btn" onclick="shiftWeek(1)">Next Week →</button>
+  <button class="wnav-btn" onclick="goThisWeek()">This Week</button>
+</div>
+<div class="content">
+  <div class="card" id="scoreCard">
+    <div class="card-hdr"><span class="card-icon">🏆</span><span class="card-title">Weekly Score</span></div>
+    <div style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div class="score-ring" id="scoreRing"></div>
+      <div>
+        <div class="big-stat" id="scoreNum" style="color:var(--accent)">—</div>
+        <div class="stat-label">out of 100</div>
+        <div style="margin-top:.5rem;font-size:.82rem;color:var(--muted)" id="scoreSub"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="insightCard">
+    <div class="card-hdr"><span class="card-icon">💡</span><span class="card-title">Insights</span></div>
+    <ul class="insight-list" id="insightList"></ul>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-icon">🌿</span><span class="card-title">Habits</span><span class="card-sub" id="habitSub"></span></div>
+    <div id="habitBars"><div class="no-data">No habit data for this week.</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-icon">🎯</span><span class="card-title">Tasks</span><span class="card-sub" id="taskSub"></span></div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="big-stat" id="taskDone" style="color:var(--accent)">0</div><div class="stat-label">Completed</div></div>
+      <div class="stat-box"><div class="big-stat" id="taskTotal" style="color:var(--muted)">0</div><div class="stat-label">Total tasks</div></div>
+      <div class="stat-box"><div class="big-stat" id="taskPct" style="color:var(--accent2)">0%</div><div class="stat-label">Rate</div></div>
+    </div>
+    <div class="day-bars" id="taskBars"></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-icon">🌙</span><span class="card-title">Sleep</span><span class="card-sub" id="sleepSub"></span></div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="big-stat" id="sleepAvg" style="color:var(--accent4)">—</div><div class="stat-label">Avg per night</div></div>
+      <div class="stat-box"><div class="big-stat" id="sleepBest" style="color:var(--accent)">—</div><div class="stat-label">Best night</div></div>
+    </div>
+    <div class="day-bars" id="sleepBars"></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-icon">💧</span><span class="card-title">Hydration</span><span class="card-sub" id="waterSub"></span></div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="big-stat" id="waterAvg" style="color:var(--accent2)">—</div><div class="stat-label">Avg / day</div></div>
+      <div class="stat-box"><div class="big-stat" id="waterTotal" style="color:var(--text)">—</div><div class="stat-label">Week total</div></div>
+    </div>
+    <div class="day-bars" id="waterBars"></div>
+  </div>
+  <div class="card">
+    <div class="card-hdr"><span class="card-icon">⏱</span><span class="card-title">Focus Time</span><span class="card-sub" id="focusSub"></span></div>
+    <div class="stat-row">
+      <div class="stat-box"><div class="big-stat" id="focusHrs" style="color:var(--accent3)">—</div><div class="stat-label">Total hours</div></div>
+      <div class="stat-box"><div class="big-stat" id="focusSess" style="color:var(--text)">—</div><div class="stat-label">Sessions</div></div>
+    </div>
+    <div class="day-bars" id="focusBars"></div>
+  </div>
+</div>
+<footer>
+  <div class="footer-logo">FocuslyNow</div>
+  <p>&copy; 2026 FocuslyNow. All rights reserved.</p>
+</footer>
+<script src="theme.js"></script>
+<script src="reminders.js"></script>
+<script>
+var DAYS_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var weekOffset = 0;
+
+function dateKey(d){ return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); }
+function p2(n){ return String(n).padStart(2,'0'); }
+
+function getWeekDays(offset){
+  var today = new Date(); today.setHours(0,0,0,0);
+  var dow = today.getDay();
+  var monday = new Date(today.getTime() - ((dow===0?6:dow-1)*86400000) + offset*7*86400000);
+  var days = [];
+  for(var i=0;i<7;i++) days.push(new Date(monday.getTime()+i*86400000));
+  return days;
+}
+
+function shiftWeek(d){ weekOffset+=d; renderAll(); }
+function goThisWeek(){ weekOffset=0; renderAll(); }
+
+/* ── DATA LOADERS ── */
+function loadTodos(){ try{ return JSON.parse(localStorage.getItem('fn_todos_v4')||'[]'); }catch(e){ return []; } }
+function loadSleep(){ try{ return JSON.parse(localStorage.getItem('fn_sleep_v1')||'[]'); }catch(e){ return []; } }
+function loadWater(){ try{ return JSON.parse(localStorage.getItem('fn_water_v1')||'[]'); }catch(e){ return []; } }
+function loadFocus(){ try{ return JSON.parse(localStorage.getItem('fl_sessions')||'[]'); }catch(e){ return []; } }
+
+function loadHabitMonth(m,y){
+  try{ return JSON.parse(localStorage.getItem('mf_habitData2_'+m+'_'+y)||'[]'); }catch(e){ return []; }
+}
+
+/* ── HABIT DATA FOR WEEK ── */
+function getHabitWeekData(days){
+  var habitMap = {};
+  days.forEach(function(d){
+    var rows = loadHabitMonth(d.getMonth(), d.getFullYear());
+    var dayIdx = d.getDate()-1;
+    rows.forEach(function(r){
+      var name = r.habit;
+      if(!habitMap[name]) habitMap[name] = {done:0,total:0,days:[]};
+      var state = (r.cells||[])[dayIdx]||'';
+      if(state !== 'na'){
+        habitMap[name].total++;
+        if(state==='done'){ habitMap[name].done++; }
+      }
+      habitMap[name].days.push(state);
+    });
+  });
+  return habitMap;
+}
+
+/* ── TASK DATA FOR WEEK ── */
+function getTaskWeekData(days){
+  var todos = loadTodos();
+  var perDay = days.map(function(d){
+    var dk = dateKey(d);
+    var done=0, total=0;
+    todos.forEach(function(t){
+      var appears = false;
+      if(!t.recur||t.recur==='none'){
+        appears = t.scheduledFor===dk||t.shownOn===dk||t.rolledTo===dk;
+      } else {
+        var dow=d.getDay();
+        switch(t.recur){
+          case 'daily': appears=true; break;
+          case 'weekdays': appears=dow>=1&&dow<=5; break;
+          case 'weekends': appears=dow===0||dow===6; break;
+          case 'weekly': case 'custom': appears=!!(t.recurDays&&t.recurDays.indexOf(dow)>=0); break;
+        }
+        var start=new Date(t.scheduledFor); start.setHours(0,0,0,0);
+        if(d<start) appears=false;
+      }
+      if(!appears) return;
+      total++;
+      var isDone = (!t.recur||t.recur==='none') ? t.done : !!(t.doneOnDates&&t.doneOnDates[dk]);
+      if(isDone) done++;
+    });
+    return {done:done,total:total};
+  });
+  return perDay;
+}
+
+/* ── RENDER BARS ── */
+function renderDayBars(containerId, days, values, max, color, fmtFn){
+  var el = document.getElementById(containerId);
+  if(!el) return;
+  var realMax = max || Math.max.apply(null,values)||1;
+  el.innerHTML = days.map(function(d,i){
+    var v = values[i]||0;
+    var h = Math.round((v/realMax)*60);
+    var lbl = DAYS_SHORT[d.getDay()];
+    return '<div class="dbar-wrap">'
+      +'<div class="dbar-val">'+(fmtFn?fmtFn(v):(v||''))+'</div>'
+      +'<div class="dbar" style="height:'+h+'px;background:'+color+'"></div>'
+      +'<div class="dbar-lbl">'+lbl+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+/* ── SCORE RING ── */
+function renderRing(score){
+  var r=54, cx=64, cy=64, c=2*Math.PI*r;
+  var dash = (score/100)*c;
+  var color = score>=80?'#c8f064':score>=60?'#64d4f0':score>=40?'#f0a064':'#f06464';
+  document.getElementById('scoreRing').innerHTML =
+    '<svg width="128" height="128" viewBox="0 0 128 128">'
+    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="#2a2e3d" stroke-width="10"/>'
+    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="none" stroke="'+color+'" stroke-width="10"'
+    +' stroke-dasharray="'+dash.toFixed(1)+' '+c.toFixed(1)+'" stroke-linecap="round"/>'
+    +'</svg>'
+    +'<div class="score-inner"><div class="score-num" style="color:'+color+'">'+score+'</div>'
+    +'<div class="score-lbl">score</div></div>';
+}
+
+/* ── RENDER ALL ── */
+function renderAll(){
+  var days = getWeekDays(weekOffset);
+  var monday = days[0], sunday = days[6];
+  var opts = {day:'numeric',month:'short'};
+  document.getElementById('weekLabel').textContent =
+    monday.toLocaleDateString('en-IN',opts)+' – '+sunday.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+
+  /* HABITS */
+  var habitData = getHabitWeekData(days);
+  var habitKeys = Object.keys(habitData);
+  var habitEl = document.getElementById('habitBars');
+  if(!habitKeys.length){
+    habitEl.innerHTML='<div class="no-data">No habit data logged this week.</div>';
+    document.getElementById('habitSub').textContent='';
+  } else {
+    var totalPct = 0;
+    habitEl.innerHTML='<div class="progress-bar-wrap">'
+      +habitKeys.map(function(name){
+        var h=habitData[name];
+        var pct = h.total>0?Math.round((h.done/h.total)*100):0;
+        totalPct+=pct;
+        var col = pct>=80?'#c8f064':pct>=60?'#64d4f0':'#f0a064';
+        return '<div class="pb-row">'
+          +'<span class="pb-label" title="'+name+'">'+name+'</span>'
+          +'<div class="pb-track"><div class="pb-fill" style="width:'+pct+'%;background:'+col+'"></div></div>'
+          +'<span class="pb-val">'+pct+'%</span>'
+          +'</div>';
+      }).join('')+'</div>';
+    var avgHabit = Math.round(totalPct/habitKeys.length);
+    document.getElementById('habitSub').textContent = 'Avg '+avgHabit+'%';
+  }
+
+  /* TASKS */
+  var taskData = getTaskWeekData(days);
+  var totalDone=0, totalTasks=0;
+  taskData.forEach(function(d){ totalDone+=d.done; totalTasks+=d.total; });
+  document.getElementById('taskDone').textContent  = totalDone;
+  document.getElementById('taskTotal').textContent = totalTasks;
+  var tPct = totalTasks>0?Math.round((totalDone/totalTasks)*100):0;
+  document.getElementById('taskPct').textContent   = tPct+'%';
+  document.getElementById('taskSub').textContent   = totalTasks>0?tPct+'% complete':'';
+  renderDayBars('taskBars',days,taskData.map(function(d){return d.done;}),null,'#a78bfa',null);
+
+  /* SLEEP */
+  var sleepLogs = loadSleep();
+  var sleepByDay = days.map(function(d){
+    var dk=dateKey(d);
+    var entry = sleepLogs.find(function(s){ return s.date===dk && (s.type==='sleep'||!s.type); });
+    return entry?((entry.hrs||0)*60):0;
+  });
+  var sleepFilled = sleepByDay.filter(function(v){return v>0;});
+  var sleepAvgH = sleepFilled.length?+(sleepFilled.reduce(function(a,b){return a+b;},0)/sleepFilled.length/60).toFixed(1):null;
+  var sleepBestH = sleepFilled.length?+(Math.max.apply(null,sleepFilled)/60).toFixed(1):null;
+  document.getElementById('sleepAvg').textContent  = sleepAvgH!==null?sleepAvgH+'h':'—';
+  document.getElementById('sleepBest').textContent = sleepBestH!==null?sleepBestH+'h':'—';
+  document.getElementById('sleepSub').textContent  = sleepFilled.length+'/7 nights logged';
+  renderDayBars('sleepBars',days,sleepByDay.map(function(m){return+(m/60).toFixed(1);}),null,'#a78bfa',function(v){return v>0?v+'h':'';});
+
+  /* WATER */
+  var waterLogs = loadWater();
+  var goal = parseInt(localStorage.getItem('fn_water_goal')||'2500');
+  var waterByDay = days.map(function(d){
+    var dk=dateKey(d);
+    return waterLogs.filter(function(w){ return w.date===dk && !w.isBev; })
+      .reduce(function(s,w){ return s+(w.ml||0); }, 0);
+  });
+  var filledWater = waterByDay.filter(function(v){return v>0;});
+  var waterAvg = filledWater.length?Math.round(filledWater.reduce(function(a,b){return a+b;},0)/7):0;
+  var waterTotal = waterByDay.reduce(function(a,b){return a+b;},0);
+  document.getElementById('waterAvg').textContent  = waterAvg>0?waterAvg+'ml':'—';
+  document.getElementById('waterTotal').textContent= waterTotal>0?Math.round(waterTotal/1000*10)/10+'L':'—';
+  document.getElementById('waterSub').textContent  = 'Goal: '+goal+'ml/day';
+  renderDayBars('waterBars',days,waterByDay,goal*1.2,'#64d4f0',function(v){return v>0?Math.round(v/100)+'dl':'';});
+
+  /* FOCUS */
+  var focusLogs = loadFocus();
+  var focusByDay = days.map(function(d){
+    var dk=dateKey(d);
+    var total=0;
+    focusLogs.forEach(function(s){
+      if(!s.startTime) return;
+      var sd=new Date(s.startTime); sd.setHours(0,0,0,0);
+      if(dateKey(sd)===dk) total+=s.duration||0;
+    });
+    return total;
+  });
+  var focusTotal = focusByDay.reduce(function(a,b){return a+b;},0);
+  var focusSessions = focusLogs.filter(function(s){
+    if(!s.startTime) return false;
+    var sd=new Date(s.startTime); sd.setHours(0,0,0,0);
+    return days.some(function(d){ return dateKey(d)===dateKey(sd); });
+  }).length;
+  document.getElementById('focusHrs').textContent  = focusTotal>0?+(focusTotal/3600).toFixed(1)+'h':'—';
+  document.getElementById('focusSess').textContent = focusSessions||'—';
+  document.getElementById('focusSub').textContent  = focusSessions>0?focusSessions+' sessions':'';
+  renderDayBars('focusBars',days,focusByDay.map(function(s){return+(s/60).toFixed(0);}),null,'#f0a064',function(v){return v>0?v+'m':'';});
+
+  /* SCORE */
+  var sc=0, parts=0;
+  var habitKeys2=Object.keys(habitData);
+  if(habitKeys2.length){
+    var hpct=habitKeys2.reduce(function(a,k){return a+(habitData[k].total>0?habitData[k].done/habitData[k].total:0);},0)/habitKeys2.length;
+    sc+=hpct*30; parts++;
+  }
+  if(totalTasks>0){ sc+=(totalDone/totalTasks)*25; parts++; }
+  if(sleepFilled.length>=3){ var sg=Math.min(sleepAvgH/8,1); sc+=sg*20; parts++; }
+  if(filledWater.length>=3){ var wg=Math.min(waterAvg/goal,1); sc+=wg*15; parts++; }
+  if(focusSessions>0){ sc+=Math.min(focusSessions/5,1)*10; parts++; }
+  var finalScore = parts>0?Math.min(100,Math.round(sc/(parts)*100/100*parts)):0;
+  /* simpler: just add all weighted parts */
+  finalScore = Math.min(100,Math.round(sc));
+  document.getElementById('scoreNum').textContent = finalScore;
+  document.getElementById('scoreSub').textContent = finalScore>=80?'Excellent week!':finalScore>=60?'Good progress':finalScore>=40?'Room to grow':'Keep going!';
+  renderRing(finalScore);
+
+  /* INSIGHTS */
+  var insights=[];
+  if(habitKeys2.length){
+    var bestHabit=habitKeys2.reduce(function(a,k){return (habitData[k].total>0&&habitData[k].done/habitData[k].total>(habitData[a]&&habitData[a].total>0?habitData[a].done/habitData[a].total:0))?k:a;},habitKeys2[0]);
+    var bh=habitData[bestHabit];
+    if(bh&&bh.total>0) insights.push({icon:'🌿',text:'Best habit: <strong>'+bestHabit+'</strong> — '+bh.done+'/'+bh.total+' days'});
+  }
+  if(totalTasks>0){
+    if(tPct>=80) insights.push({icon:'🎯',text:'Great task completion — <strong>'+tPct+'%</strong> of tasks done!'});
+    else if(tPct<50) insights.push({icon:'⚠️',text:'Only <strong>'+tPct+'%</strong> of tasks completed. Try breaking tasks smaller.'});
+  }
+  if(sleepAvgH!==null){
+    if(sleepAvgH<7) insights.push({icon:'🌙',text:'Average sleep was <strong>'+sleepAvgH+'h</strong> — aim for 7–9 hours.'});
+    else insights.push({icon:'🌙',text:'Great sleep! Averaging <strong>'+sleepAvgH+'h</strong> per night.'});
+  }
+  if(waterAvg>0&&waterAvg<goal*0.7) insights.push({icon:'💧',text:'Hydration is below target. Try adding a water reminder.'});
+  if(focusSessions>0) insights.push({icon:'⏱',text:'<strong>'+focusSessions+'</strong> focus session'+(focusSessions>1?'s':'')+' — '+(focusTotal/3600).toFixed(1)+'h of deep work this week.'});
+  if(!insights.length) insights.push({icon:'📊',text:'Start logging your habits, tasks and sleep to see insights here.'});
+  document.getElementById('insightList').innerHTML=insights.map(function(ins){
+    return '<li class="insight-item"><span class="ii-icon">'+ins.icon+'</span><span>'+ins.text+'</span></li>';
+  }).join('');
+}
+
+renderAll();
+</script>
+</body>
+</html>
